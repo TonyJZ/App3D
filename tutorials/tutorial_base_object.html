@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for adding object into scene by different method. <br>
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        },
+                        {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        },
+                        {
+                            name: "cabinet",
+                            path: "models/server_01.app3",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            let opts = {
+                name: "building_a4",
+                label: "Building A4",
+                path: "models/building_a8.app2",
+                type: "object"
+            };
+            let myTestObj = new APP3D.BaseObject(opts, (filledObj) => {
+                app.getCurrentScene().add(filledObj);
+
+                let allBuildings = app.queryForObject("building_");
+                allBuildings.forEach((ea, index) => {
+                    setTimeout(() => {
+                        ea.showOutline();
+                    }, index * 1000);
+                    ea.showTransformationControl("translate");
+                });
+
+                setTimeout(() => {
+                    let building_a4 = app.queryForObject("building_a4")[0];
+                    building_a4.hideOutline();
+                    building_a4.hideTransformationControl();
+                }, 2000);
+
+            });
+
+            let cabinet0 = app.queryForObject("cabinet")[0];
+            cabinet0.translateX(20);
+            cabinet0.translateZ(20);
+            cabinet0.scale.set(10, 10, 10);
+
+
+            var cloneObj = cabinet0.clone();
+            cloneObj.name = "cabinet_clone";
+            //cloneObj.translateX(20);
+            cloneObj.translateY(50);
+            //cloneObj.translateZ(50);
+
+            app.getCurrentScene().add(cloneObj);
+
+            // cabinet0.pauseAllAnimations();
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

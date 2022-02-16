@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for finding the optimal camera location and look at direction.<br>
+        Rule: the distance will be calculated based on the condition that object is rotating on Y.<br>
+        Press "W" to make object rotation <br>
+        Press "A" to move camera to the best location.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a4",
+                            label: "Building A8",
+                            path: "models/building_a1.app2",
+                            //path:           "models/elevator.app4",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            app.getCurrentScene().showAxesHelper(true);
+        }
+
+        function objRotation(object, rotSpeed) {
+            let loop = function (object, delta) {
+                object.rotateY(rotSpeed);
+                return true;
+            };
+
+            let lookAtPoints = [];
+            let rotAnimation = new APP3D.Animation("rotate", loop, [object]);
+            object.animations.addWithReplace(rotAnimation);
+        }
+
+        function objStopRotation(object) {
+            object.animations.removeAll();
+        }
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+
+        let yOffset = 0;
+
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            switch (event.keyCode) {
+                case 87: // W
+                    let buildings0 = app.queryForObject("building_a4");
+                    buildings0.forEach(function (building) {
+                        objRotation(building, 0.01);
+                    });
+                    break;
+                case 65: // A
+                    let buildings = app.queryForObject("building_a4");
+                    buildings.forEach(function (building) {
+                        app.showOutline([building], 0xffff00);
+                        building.bboxHelper();
+                        building.scale.set(1, 1, 1);
+                        let testCamera = app.getCurrentCamera();
+                        let padding = { "xLeft": 0, "xRight": 0, "yPercentage": 1, "yOffset": yOffset }
+                        let optimizedPosition = building.getOptimalCameraParams(testCamera, Math.PI / 4, 1, padding);
+                        testCamera.setPosition(optimizedPosition.position.x, optimizedPosition.position.y, optimizedPosition.position.z);
+                        testCamera.setLookAtPoint(optimizedPosition.lookAt);
+                        testCamera.updateMatrix();
+                        testCamera.updateMatrixWorld();
+                    });
+                    break;
+                case 83: // S
+                    yOffset = yOffset - 10;
+                    break;
+                case 68: // D
+                    yOffset = yOffset + 10;
+                    break;
+                case 88: // X
+                    let buildings1 = app.queryForObject("building_a4");
+                    buildings1.forEach(function (building) {
+                        objStopRotation(building);
+                    });
+                    break;
+                default:
+                    console.log("key code", event.keyCode);
+                    break; z
+            }
+        });
+
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

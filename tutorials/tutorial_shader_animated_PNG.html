@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Appropolis 3D library</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+  <link href="css/main.css" rel="stylesheet" />
+  <link id="theme" href="css/light.css" rel="stylesheet" />
+  <link id="description" href="css/description.css" rel="stylesheet" />
+
+  <script src="lib/app3d.js"></script>
+  <script src="lib/inflate.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+
+  <style>
+    #viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  </style>
+</head>
+
+<body id="parent">
+  <div id="progressbar"></div>
+  <p>
+    This tutorial use animated PNG as texture on object.
+  </p>
+  <div id="container"></div>
+</body>
+
+<script type="text/javascript" id="mainCode">
+  // Description of the site
+  let siteObj = {
+    scenes: [
+      {
+        name: "anyue",
+        isPrimary: true,
+        camera: {
+            initialPosition: {
+                x: -16.38856398780969,
+                y: 34.1718264187684,
+                z: -99.71296357852852
+            },
+            initialFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            homePosition: {
+                x: -16.38856398780969,
+                y: 34.1718264187684,
+                z: -99.71296357852852
+            },
+            homeFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+        },
+        objects: [
+          {
+            name: "ground",
+            path: "models/grounds.app2",
+            type: "ground"
+          },
+          {
+            name: "apngFountain",
+            path: "models/apngFountain.app2",
+            type: "object"
+          }
+        ]
+      }
+    ]
+  };
+  // Create an app with the site and on load function
+  function onLoad() {
+    // Get elect all obj from the site
+    let obj = app.queryForObject("apngFountain");
+    obj.forEach(function (plane) {
+      shaderEffect = "AnimatedPNGEffect";
+      parameters = {
+        object: plane,
+        meshName: "Fountain_main",
+        restore: false,
+        textureUrl: "images/Fountain_Jet_TextureSheet.png",
+        duration: 0.5, //sec
+      };
+      effect1 = new APP3D.ShaderFactory(shaderEffect, parameters);
+
+      //ripples
+      paramRipples = {
+        object: plane,
+        meshName: "Fountain_sub001",
+        restore: false,
+        textureUrl: "images/Ripples_Texture_Sheet.png",
+        duration: 4.0, //sec
+        time: 0.0,
+      }
+      effect1 = new APP3D.ShaderFactory(shaderEffect, paramRipples);
+      paramRipples.meshName = "Fountain_sub002";
+      paramRipples.duration = 6.0;
+      paramRipples.time = 2.0;
+      effect1 = new APP3D.ShaderFactory(shaderEffect, paramRipples);
+      paramRipples.meshName = "Fountain_sub003";
+      paramRipples.duration = 5.0;
+      paramRipples.time = 4.0;
+      effect1 = new APP3D.ShaderFactory(shaderEffect, paramRipples);
+      paramRipples.meshName = "Fountain_sub004";
+      paramRipples.duration = 10.0;
+      paramRipples.time = 10.0;
+      effect1 = new APP3D.ShaderFactory(shaderEffect, paramRipples);
+    });
+  }
+  var parameters = {};
+  var effect1, shaderEffect;
+  var isRestore = true;
+  let app = new APP3D.App("parent", siteObj, onLoad);
+
+</script>
+
+</html>

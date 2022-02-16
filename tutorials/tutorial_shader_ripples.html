@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Appropolis 3D library</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+  <link href="css/main.css" rel="stylesheet" />
+  <link id="theme" href="css/light.css" rel="stylesheet" />
+  <link id="description" href="css/description.css" rel="stylesheet" />
+
+  <script src="lib/app3d.js"></script>
+  <script src="lib/inflate.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+
+  <style>
+    #viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  </style>
+</head>
+
+<body id="parent">
+  <div id="progressbar"></div>
+  <p>
+    This tutorial is show Ripples in shader material. <br>
+    Press "S" to update parameters. <br>
+    Press "D" to restore effectt.
+  </p>
+  <div id="container"></div>
+</body>
+
+<script type="text/javascript" id="mainCode">
+  // Description of the site
+  let siteObj = {
+    scenes: [
+      {
+        name: "anyue",
+        isPrimary: true,
+        camera: {
+            initialPosition: {
+                x: -16.38856398780969,
+                y: 34.1718264187684,
+                z: -99.71296357852852
+            },
+            initialFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            homePosition: {
+                x: -16.38856398780969,
+                y: 34.1718264187684,
+                z: -99.71296357852852
+            },
+            homeFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+        },
+        objects: [
+          {
+            name: "ground",
+            path: "models/grounds.app2",
+            type: "ground"
+          },
+          {
+            name: "plane02",
+            path: "models/onePlane.app2",
+            type: "object"
+          },
+          {
+            name: "test01",
+            path: "models/stl/test.app3",
+            type: "object"
+          }
+        ]
+      }
+    ]
+  };
+  // Create an app with the site and on load function
+  function onLoad() {
+    // Get elect all obj from the site
+    shaderEffect = "RippleEffect";
+    let plane02 = app.queryForObject("plane02");
+    plane02.forEach(function (plane) {
+      parameters1_1 = {
+        object: plane,
+        meshName: "Plane001",
+        restore: false,
+        color: "#ffff00",
+        duration: 2.0, //sec
+      };
+      effect1_1 = new APP3D.ShaderFactory(shaderEffect, parameters1_1);
+    });
+
+    let obj = app.queryForObject("test01");
+    obj.forEach(function (plane) {
+      parameters1_2 = {
+        object: plane,
+        meshName: "model_city_0",
+        restore: false,
+        color: "#ffff00",
+        duration: 5.0, //sec
+        rippleCenter: { x: -0.5, y: 0.5 },
+      };
+      effect1_2 = new APP3D.ShaderFactory(shaderEffect, parameters1_2);
+
+      parameters1_3 = {
+        object: plane,
+        meshName: "model_city_1",
+        restore: false,
+        color: "#ffff00",
+        duration: 5.0, //sec
+        rippleCenter: { x: -0.5, y: 0.5 },
+      };
+      effect1_3 = new APP3D.ShaderFactory(shaderEffect, parameters1_3);
+    });
+  }
+  var parameters1_1 = {}, parameters1_2 = {}, parameters1_3 = {};
+  var effect1_1, effect1_2, effect1_3, shaderEffect;
+  var isRestore = true;
+  let app = new APP3D.App("parent", siteObj, onLoad);
+
+  app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+    var key = event.code || event.key;
+    if (key.length === 1) {
+      key = "Key" + key.toUpperCase();
+    }
+    // let plane = null;
+    switch (key) {
+      case "KeyS":
+        let parameters2 = {
+          // restore: false,
+          color: "#ffff00",
+          duration: 1.0, //sec
+        };
+        effect1_1.updateParameters(parameters2)
+        effect1_2.updateParameters(parameters2)
+        effect1_3.updateParameters(parameters2)
+        break;
+      case "KeyD":
+        if (isRestore=== true) {
+          let parameters2 = {
+            restore: true,
+          };
+          effect1_1.updateParameters(parameters2);
+          effect1_2.updateParameters(parameters2);
+          effect1_3.updateParameters(parameters2);
+          isRestore = false;
+        } else if (isRestore === false) {
+          effect1_1 = new APP3D.ShaderFactory(shaderEffect, parameters);
+          effect1_2 = new APP3D.ShaderFactory(shaderEffect, parameters);
+          effect1_3 = new APP3D.ShaderFactory(shaderEffect, parameters);
+          isRestore = true;
+        }
+        break;
+      default:
+        break;
+    }
+  });
+
+  // get scene
+  let scene = app.getCurrentScene();
+  // add ripple
+  let shaderEffect2 = "RippleEffect2";
+  let parameters2_1 = { diameter: 30, textureUrl: "textures/explosion.png" };
+  let effect2_1 = new APP3D.ShaderFactory(shaderEffect2, parameters2_1);
+  let planeRipple = effect2_1.getBaseObject();
+  planeRipple.position.set(0, 15, 0);
+  scene.add(planeRipple);
+
+</script>
+
+</html>

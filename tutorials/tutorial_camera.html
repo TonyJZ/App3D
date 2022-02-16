@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for camera animation. <br>
+        Press "C" to get current camera position and look at position. <br>
+        Press "T", "X", "Y", "Z" for different fly to mode. <br>
+        Press "1", "2", "3" to send signal to fly animation.
+
+    </p>
+    <script>
+        if (true) {
+            // Description of the site
+            let siteObj = {
+                scenes: [
+                    {
+                        name: "anyue",
+                        isPrimary: true,
+                        camera: {
+                            initialPosition: {
+                                x: 200,
+                                y: 180,
+                                z: -50
+                            },
+                            initialFocalPoint: {
+                                x: 20,
+                                y: 0,
+                                z: -15
+                            },
+                            homePosition: {
+                                x: 167.0,
+                                y: 206.0,
+                                z: -148.0
+                            },
+                            homeFocalPoint: {
+                                x: 20,
+                                y: 0,
+                                z: -15
+                            }
+                        },
+
+                        objects: [
+                            {
+                                name: "ground",
+                                path: "models/grounds.app2",
+                                type: "ground"
+                            }, {
+                                name: "building_a1",
+                                label: "Building A1",
+                                path: "models/building_a1.app2",
+                                type: "object"
+                            },
+                            {
+                                name: "building_a2",
+                                label: "Building A2",
+                                path: "models/building_a8.app2",
+                                type: "object"
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            // On load function called once the site loading is complete
+            function onLoad() {
+                // Get elect all buildings from the site
+                let buildings = app.queryForObject("building_");
+                buildings.forEach((building) => {
+                    building.onEvent(APP3D.Events.MOUSE_LEFT, (event) => {
+                        app.showOutline([building], 0xffff00);
+                    });
+                    building.onEvent(APP3D.Events.MOUSE_DOUBLE, (event) => {
+                        app.getCurrentCamera().flyTo(event.object, 3, null, null, null);
+                    });
+                });
+
+                // Change 'choice' below to the appropriate value to test out the various
+                // camera functions.
+                let choice = 6;
+
+                // The following variables are used for cases 3 and 4:
+                let regex = new RegExp("^building_a1$");
+                let building = app.queryForObject(regex)[0];
+                let stopDistance, duration, finalLookAt, callback, finalPos;
+                let globalFadeEffect = { radius: 50, dimB: .2 };  // exceptions: []
+                let finalLookAtPoint = new APP3D.Vector3(
+                    -0.7138008052768211,
+                    -0.39844118945237594,
+                    -0.3759626975194989
+                );
+                let pullOutPosition = null;
+                let camera = app.getCurrentCamera();
+                app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+                    switch (event.code) {
+                        case 'Digit1':
+                            if (camera.animations.get("flying") != null) {
+                                camera.animations.get("flying").sendSignal(APP3D.Signals.SIGKILL);
+                            }
+                            break;
+                        case 'Digit2':
+                            if (camera.animations.get("flying") != null){
+                                camera.animations.get("flying").sendSignal(APP3D.Signals.SIGTERM);
+                            }
+                            break;
+                        case 'Digit3':
+                            if (camera.animations.get("flying") != null){
+                                camera.animations.get("flying").sendSignal(APP3D.Signals.SIGREPLACE);
+                            }
+                            break;
+                        case 'KeyC': // C
+                            console.log("camera position", app.getCurrentCamera().position);
+                            let lookAt = app.getCurrentCamera().getLookAtVector();
+                            console.log("camera lookAt", lookAt);
+                            console.log("-------------------------------");
+                            break;
+
+                        case 'KeyA':
+                            //flyToPoint: function(finalPos, duration, stopDistance, callback = null, finalLookAt = null)
+                            finalPos = { x: 14.800905452009602, y: 170.31038096812424, z: -350.1913525721486 };
+                            duration = 3;
+                            stopDistance = 0;
+                            callback = function () {
+                                console.log("finished");
+                            };
+                            //let finalLookAt =  {x: -0.1904843200640459, y: -0.5128672199799011, z: 0.837068060840829, }; //"direction is the default"
+                            finalLookAt = { x: 0, y: 0, z: 0, type: "point" }
+                            camera.flyToPoint(finalPos, duration, stopDistance, callback, finalLookAt);
+                            break;
+
+                        case 'KeyZ': // z
+                            pullOutPosition = { x: 28.8471973515865, y: 65.179015580853, z: -143.9366766536914 };
+                            stopDistance = null;
+                            pullOutPosition = null;
+                            camera.zoomOutZoomIn(building, stopDistance, 3, null, pullOutPosition, globalFadeEffect, null, .5);
+                            break;
+
+                        case 'KeyY': // z
+                            //pullOutPosition = {x: 28.8471973515865, y: 65.179015580853, z: -143.9366766536914};
+                            pullOutPosition = null;
+                            stopDistance = 100;
+                            finalPos = building.getCenter();
+                            duration = 2;
+                            finalLookAt = null;
+                            callback = null;
+
+                            camera.zoomOutZoomInPoint(finalPos, stopDistance, duration, finalLookAt, pullOutPosition, callback, .5)
+                            break;
+                        case 'KeyT': // z
+                            //pullOutPosition = {x: 28.8471973515865, y: 65.179015580853, z: -143.9366766536914};
+                            pullOutPosition = null;
+                            stopDistance = null;
+                            finalPos = { x: -44.555778908664635, y: 36.735306391761085, z: 106.68954271030081 };
+                            duration = 2;
+                            finalLookAt = { x: 0.5342896945855088, y: -0.2709639308417196, z: -0.8006953668171981 };
+                            callback = null;
+
+                            camera.zoomOutZoomInPoint(finalPos, 0, duration, finalLookAt, pullOutPosition, callback, .5)
+                            break;
+                        case "KeyX": // Test flying to a point, with a new direction
+                            let path = [
+                                {
+                                    ctrlPoint: { name: "1", x: -168.5982046698137, y: 40.94409186960053, z: -113.86399347652592 },
+                                    focalPoint: { x: 0.6310640471840624, y: -0.14960645566213013, z: 0.7611675747007923 },
+                                    sectionTime: 4,
+                                    stopTime: 3
+                                },
+                                {
+                                    ctrlPoint: { name: "2", x: -98.2033085489548, y: 24.514740245899585, z: -28.95611036906054 },
+                                    focalPoint: { x: 0.6310640471840624, y: -0.1496064556621301, z: 0.7611675747007924 },
+                                    sectionTime: 1,
+                                    stopTime: 1,
+                                },
+                                {
+                                    ctrlPoint: { name: "3", x: -25.836468003422027, y: 31.87020792324345, z: 93.41494418031861 },
+                                    focalPoint: { x: 0.8864947778819902, y: -0.3599354908352769, z: 0.29081514957981286 },
+                                    sectionTime: 4,
+                                    stopTime: 1
+                                },
+                                {
+                                    ctrlPoint: { name: "4", x: 132.79968719508813, y: 35.75704233275643, z: 39.42901360353525 },
+                                    focalPoint: { x: -0.6471463320967848, y: -0.3289241678282714, z: -0.6877576002285662 },
+                                    sectionTime: 4,
+                                    stopTime: 2
+                                },
+                                {
+                                    ctrlPoint: { name: "5", x: -168.5982046698137, y: 40.94409186960053, z: -113.86399347652592 },
+                                    focalPoint: { x: 0.6310640471840624, y: -0.14960645566213013, z: 0.7611675747007923 },
+                                    sectionTime: 4,
+                                    stopTime: 3
+                                }
+                            ]
+                            let onFinish = function () {
+                                console.log("finished");
+                            };
+                            let onProgress = function (position) {
+                                let camPos = app.getCurrentCamera().position;
+                                let dis;
+                                if (position.name === "3") {
+                                    dis = camPos.distanceTo(new APP3D.Vector3(position.x, position.y, position.z));
+                                    console.log(position);
+                                    console.log("do your business logic once");
+                                    console.log("distance to the control point: ", dis);
+                                    return false;  //do the callback once in the closing area 
+                                }
+                                else {
+                                    dis = camPos.distanceTo(new APP3D.Vector3(position.x, position.y, position.z));
+                                    console.log(position);
+                                    console.log("distance to the control point: ", dis);
+                                    return true; //do the callback multiple times in the closing area
+                                }
+                            };
+                            app.getCurrentCamera().flyInPath(path, false, onFinish, onProgress, 10)
+                            break;
+                        default:
+                            console.log("key code", event.code);
+                            break;
+                    }
+                });
+
+
+                // switch (choice) {
+                //     case 1: // Set look at point
+                //         app.getCurrentCamera().setLookAtPoint({ x: 0, y: 0, z: -100});
+                //         break;
+                //     case 2: // Set look at vector
+                //         app.getCurrentCamera().setLookAtVector({x: 0, y: 1, z: 0}, 100);
+                //         break;
+                //     case 3: // Test out the "zoom out, zoom in" feature:
+                //         let pullOutPosition = {x: 28.8471973515865, y: 65.179015580853, z: -143.9366766536914};
+                //         stopDistance = 30;
+                //         if (/^building_/.test(building.info.name)) {
+                //             stopDistance = 100;
+                //         }
+
+                //         app.getCurrentCamera().zoomOutZoomIn(building, stopDistance, 3, null, pullOutPosition, globalFadeEffect);
+                //         break;
+                //     case 4: // Test out the "zoom IN, zoom OUT" feature:
+                //         let pullInPosition = { x: 21.26588310, y: 18.7507757, z: -4.177498 };
+                //         stopDistance = 30;
+                //         if (/^building_/.test(building.info.name)) {
+                //             stopDistance = 100;
+                //         }
+
+                //         app.getCurrentCamera().zoomOutZoomIn(building, stopDistance, 3, finalLookAtPoint, pullInPosition, globalFadeEffect);
+                //         break;
+                //     case 5: // Test flying to a point, with the same direction
+                //         app.getCurrentCamera().flyToPoint(building.getCenter(), 2, 80, null, finalLookAtPoint);
+                //         break;
+                //    
+                //     default:
+                //         break;
+                // }
+            }
+
+            // Create an app with the site and on load function
+            let app = new APP3D.App("parent", siteObj, onLoad);
+            app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+                switch (event.keyCode) {
+                    case 67: // C
+                        if (!app.enableFirstPersonView) {
+                            console.log("camera position", app.getCurrentCamera().position);
+                            let lookAt = app.getCurrentCamera().getLookAtVector();
+                            console.log("camera lookAt", lookAt);
+                            console.log("-------------------------------");
+                            console.log(selectedObject.matrixWorld);
+                        } else {
+                            app.enableCollisionDetection = !app.enableCollisionDetection;
+                        }
+                        break;
+                    default:
+                        console.log("key code", event.keyCode);
+                        break;
+                }
+            });
+        }
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

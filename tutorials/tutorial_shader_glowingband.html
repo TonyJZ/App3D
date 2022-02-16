@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        Tutorial for Add glowing band effect to mesh on object <br>
+        Press "W" to close effect. <br>
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        },
+                        {
+                            name: "building_a1",
+                            label:"Building A1",
+                            path: "models/building_a1.app2",
+                            type: "object"
+                        },
+                        {
+                            name: "t2",
+                            label:"Building A1",
+                            path: "models/t2.app3",
+                            type: "object"
+                        }
+
+                    ]
+                }
+            ]
+        };
+
+        // On load function called once the site loading is complete
+        let effect, effect2, effect3, effect4;
+        function onLoad() {
+            // Get elect all buildings from the site
+            let buildings = app.queryForObject("building_");
+            buildings.forEach(function (building) {
+                let meshName = "Untitled.081_1";
+                let shaderEffect = "GlowingBandEffect";
+                let parameters = {
+                    object: building,
+                    meshName: meshName,
+                    backgroundMixer: true,
+                    alpha: 0.1,
+                    direction: 0.0,
+                    bandWidth: 0.99,
+                    redBase: 0.0,
+                    greenBase: 0.0,
+                    blueBase: 0.0,
+                    redAmp: 0.0,
+                    greenAmp: 0.5,
+                    blueAmp: 0.5,
+                    uSpeed: 0.5,
+                    vSpeed: 0.3,
+                    restore: false,
+                };
+                effect = new APP3D.ShaderFactory(shaderEffect, parameters);
+
+                let meshName2 = "Untitled.081_6";
+                let shaderEffect2 = "GlowingBandEffect";
+                let parameters2 = {
+                    object: building,
+                    meshName: meshName2,
+                    backgroundMixer: true,
+                    alpha: 0.1,
+                    direction: 0.0,
+                    bandWidth: 0.99,
+                    redBase: 0.0,
+                    greenBase: 0.0,
+                    blueBase: 0.0,
+                    redAmp: 0.0,
+                    greenAmp: 0.5,
+                    blueAmp: 0.5,
+                    uSpeed: 0.8,
+                    vSpeed: 0.3,
+                    restore: false,
+                };
+                effect2 = new APP3D.ShaderFactory(shaderEffect2, parameters2);
+            });
+
+            let testModels = app.queryForObject("t2");
+            testModels.forEach(function(test){
+                let meshName = "Box001";
+                let shaderEffect = "GlowingBandEffect";
+                let parameters = {
+                    object: test,
+                    meshName: meshName,
+                    backgroundMixer: true,
+                    alpha: 0.1,
+                    direction: 0.0,
+                    bandWidth: 0.99,
+                    redBase: 0.0,
+                    greenBase: 0.0,
+                    blueBase: 0.0,
+                    redAmp: 0.0,
+                    greenAmp: 0.0,
+                    blueAmp: 1.0,
+                    uSpeed: 0.5,
+                    vSpeed: 0.3,
+                    restore: false,
+                };
+                effect3 = new APP3D.ShaderFactory(shaderEffect, parameters);
+
+                let meshName2 = "Sphere001";
+                let shaderEffect2 = "GlowingBandEffect";
+                let parameters2 = {
+                    object: test,
+                    meshName: meshName2,
+                    backgroundMixer: true,
+                    alpha: 0.1,
+                    direction: 0.0,
+                    bandWidth: 0.99,
+                    redBase: 0.0,
+                    greenBase: 0.0,
+                    blueBase: 0.0,
+                    redAmp: 0.0,
+                    greenAmp: 0.5,
+                    blueAmp: 0.5,
+                    uSpeed: 0.8,
+                    vSpeed: 0.3,
+                    restore: false,
+                };
+                effect4 = new APP3D.ShaderFactory(shaderEffect2, parameters2);
+            });
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            switch (event.keyCode) {
+                // Example for setup parameters
+                case 87: // W
+                    let parameters3 = {
+                        restore: true,
+                        // blueAmp: 1.0,
+                        // greenAmp: 0.0,
+                    };
+                    effect.updateParameters(parameters3);
+                    effect2.updateParameters(parameters3);
+                    effect3.updateParameters(parameters3);
+                    effect4.updateParameters(parameters3);
+                    break;
+                
+                default:
+                    console.log("key code", event.keyCode);
+                    break;
+            }
+        });
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

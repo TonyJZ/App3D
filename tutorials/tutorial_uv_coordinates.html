@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This tutorial is for UV coordinates correction. <br>
+        Press 'S' to attach a texture to the blank plane.
+        Press 'U' to correct the UV coordinates <br>
+        The v-axis should be inversed to meet the opengl UV frame.
+        The model is created by 3ds max.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    //         camera : {
+                    //             initialPosition :{
+                    //                 x: 200,
+                    //                 y: 180,
+                    //                 z: -50
+                    //             },
+                    //             initialFocalPoint: {
+                    //                 x: 20,
+                    //                 y: 0,
+                    //                 z: -15
+                    //             },
+                    //             homePosition : {
+                    //                 x: 167.0,
+                    //                 y: 206.0,
+                    //                 z: -148.0
+                    //             },
+                    //             homeFocalPoint : {
+                    //                 x: 20,
+                    //                 y: 0,
+                    //                 z: -15
+                    //             }
+                    //         },
+                    objects: [
+                        {
+                            name: "planeModel",
+                            path: "models/plane.app2",
+                            type: "object",
+                            selectableObjectExp: [
+                                {
+                                    name: "Plane002",
+                                    label: "Plane002"
+                                }, {
+                                    name: "Plane001",
+                                    label: "Plane001"
+                                }
+                            ]
+                        },
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            APP3D.Texture.load('textures/UV_Grid_Sm.jpg', function (texture) {
+
+                texture.wrapS = texture.wrapT = 1000; // THREE.RepeatWrapping ;
+
+                material = new APP3D.MeshBasicMaterial({ map: texture });
+                material.side = 2; // THREE.DoubleSide;
+                // material.wireframe = true;
+
+                let geometry = new APP3D.PlaneBufferGeometry(10, 10, 1, 1);
+                planeMesh = new APP3D.Mesh(geometry, material);
+                planeMesh.name = "planeByCode";
+                // let planeCode = new APP3D.BaseObject();
+                // planeCode.add(planeMesh);
+
+                planeMesh.position.set(5, 5, 0);
+                app.getCurrentScene().add(planeMesh);
+
+                let plane = app.queryForObject("^planeModel$")[0];
+                plane.position.set(-5, 0, 0);
+            });
+        }
+
+        // Create an app with the site and on load function
+        var material = null;
+        var planeMesh = null;
+        var API = {
+            offsetX: 0,
+            offsetY: 0,
+            repeatX: 1,
+            repeatY: 1,
+            rotation: 0, // positive is counter-clockwise
+            centerX: 0,
+            centerY: 0
+        };
+
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        let bCorrected = false;
+
+        function updateUvTransform() {
+            app.getCurrentScene().children.forEach(mesh => {
+                if (mesh.isMesh && mesh.material.map !== undefined) {
+                    var texture = mesh.material.map;
+
+                    if (texture.matrixAutoUpdate === true) {
+
+                        texture.offset.set(API.offsetX, API.offsetY);
+                        texture.repeat.set(API.repeatX, API.repeatY);
+                        texture.center.set(API.centerX, API.centerY);
+                        texture.rotation = API.rotation; // rotation is around [ 0.5, 0.5 ]
+
+                    }
+                }
+            });
+
+        }
+
+        function initGui() {
+
+            gui = new dat.GUI();
+
+            gui.add(API, 'offsetX', 0.0, 1.0).name('offset.x').onChange(updateUvTransform);
+            gui.add(API, 'offsetY', 0.0, 1.0).name('offset.y').onChange(updateUvTransform);
+            gui.add(API, 'repeatX', 0.25, 2.0).name('repeat.x').onChange(updateUvTransform);
+            gui.add(API, 'repeatY', 0.25, 2.0).name('repeat.y').onChange(updateUvTransform);
+            gui.add(API, 'rotation', - 2.0, 2.0).name('rotation').onChange(updateUvTransform);
+            gui.add(API, 'centerX', 0.0, 1.0).name('center.x').onChange(updateUvTransform);
+            gui.add(API, 'centerY', 0.0, 1.0).name('center.y').onChange(updateUvTransform);
+
+        }
+        initGui();
+
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            var key = event.code || event.key;
+            if (key.length === 1) {
+                key = "Key" + key.toUpperCase();
+            }
+            let plane = null;
+            switch (key) {
+                case "KeyS":
+                    plane = app.queryForObject("^Plane002$")[0];
+                    plane.traverse(child => {
+                        if (child.isMesh) {
+                            child.material.map = material.map;
+                            child.material.map.needsUpdate = true;
+                            child.material.needsUpdate = true;
+                        }
+                    });
+                    break;
+                case "KeyU":
+                    if (!bCorrected) {
+                        plane = app.queryForObject("^Plane002$")[0];
+                        plane.traverse(child => {
+                            if (child.isMesh) {
+                                let uvAttribute = child.geometry.attributes.uv;
+                                let index = child.geometry.index;
+
+                                for (let i = 0; i < uvAttribute.count; ++i) {
+                                    uvAttribute.setY(i, -uvAttribute.getY(i));
+                                    // uvAttribute.setX(i, 1.0 - uvAttribute.getX(i));
+                                }
+
+                                if (child.geometry.isBufferGeometry)
+                                    child.geometry.attributes.uv.needsUpdate = true;
+                                else if (child.geometry.isGeometry)
+                                    child.geometry.uvsNeedUpdate = true;
+                            }
+                        });
+                        bCorrected = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

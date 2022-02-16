@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This tutorial is for testing different transparency methods<br/>
+        Press A to turn on Depth Peeling <br/>
+        Press B to turn off Depth peeling <br/>
+        Press C or D to Increase or decrease number of layers in depth peeling <br/>
+        Press F to toggle Threshold method (with opacity threshold .2) <br/>
+
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        },
+                        {
+                            name: "tree_glb1",
+                            label: "tree glb1",
+                            path: "models/tree1test.app2",
+                            type: "object",
+                            matrix: {
+                                elements: [
+                                    1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    0,
+                                    0,
+                                    10,
+                                    0,
+                                    1
+                                ]
+                            }
+                        },
+                        {
+                            name: "tree_glb2",
+                            label: "tree glb2",
+                            path: "models/tree1test.app2",
+                            type: "object",
+                            matrix: {
+                                elements: [
+                                    1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    0,
+                                    10,
+                                    10,
+                                    0,
+                                    1
+                                ]
+                            }
+                        },
+                        {
+                            name: "tree_fbx",
+                            label: "tree fbx",
+                            path: "models/tree1test_split.app4",
+                            type: "object",
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+
+            // Get elect all buildings from the site
+            let ground = app.queryForObject("ground");
+            ground[0].traverse(mesh => {
+                if (mesh.isMesh) {
+                    mesh.material.transparent = false;
+                    mesh.material.opacity = 1;
+                }
+            });
+            // ground.renderOrder = -1;
+            let trees = app.queryForObject("tree");
+            let toggleOpacityThreshold = true;
+            let tp = null;
+            app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+                switch (event.keyCode) {
+                    case 65:  //A -> Turn on Depth peeling
+                        app.setTransparencyMethod(APP3D.TransparencyMethods.DEPTH_PEEL, { numLayers: 4 });
+                        break;
+                    case 66: //B -> Turn off depth peeling
+                        app.setTransparencyMethod(APP3D.TransparencyMethods.NO_METHOD, null);
+                        break;
+                    case 67:  //C -> Increase the number of layers
+                        tp = app.getTransparencyMethod();
+                        if (tp.method === APP3D.TransparencyMethods.DEPTH_PEEL) {
+                            app.setTransparencyMethod(APP3D.TransparencyMethods.DEPTH_PEEL, { numLayers: tp.params.numLayers + 1 });
+                            console.log("Number of layers", tp.params.numLayers + 1)
+                        }
+                        break;
+                    case 68: //D -> Decrease the number of layers
+                        tp = app.getTransparencyMethod();
+                        if (tp.method === APP3D.TransparencyMethods.DEPTH_PEEL) {
+                            app.setTransparencyMethod(APP3D.TransparencyMethods.DEPTH_PEEL, { numLayers: tp.params.numLayers - 1 });
+                            console.log("Number of layers", tp.params.numLayers - 1)
+                        }
+                        break;
+                    case 69: //E -> check the composer
+                        console.log(app.composer);
+
+                        break;
+                    case 70: //F -> threshold methos
+                        if (toggleOpacityThreshold) {
+                            trees.forEach(function (tree) {
+                                tree.setOpacityThreshold(.2);
+                            });
+                        } else {
+                            trees.forEach(function (tree) {
+                                tree.setOpacityThreshold(0);
+                            });
+                        }
+                        toggleOpacityThreshold = !toggleOpacityThreshold;
+
+                        break;
+                    default:
+                        console.log(event.keyCode);
+                        break;
+                }
+            });
+        }
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.getCurrentScene().setSkyBoxImage("jpg", "./assets/bluesky/");
+        app.showStatsInfo(true);
+
+    </script>
+    <div id="container"></div>
+</body>
+
+</html>

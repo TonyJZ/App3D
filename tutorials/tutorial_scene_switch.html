@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        Switch scenes tutorial <br>
+        press 'A' switch to scene 'anyue_2'.<br>
+        press 'B' switch to scene 'anyue'.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        },
+                    ]
+                },
+                {
+                    name: "anyue_2",
+                    isPrimary: false,
+                    camera: {
+                        initialPosition: {
+                            x: 120,
+                            y: 180,
+                            z: 50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a4",
+                            label: "Building A4",
+                            path: "models/building_a8.app2",
+                            type: "object"
+                        }, {
+                            name: "car",
+                            description: "Car",
+                            type: "object",
+                            startPaused: false,
+                            timeScale: 1 / 10,
+                            path: "models/car.app2",
+                            hasAnimationPath: true
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            let buildings = app.queryForObject("building_");
+            buildings.forEach((building) => {
+                building.onEvent(APP3D.Events.MOUSE_LEFT, (event) => {
+                    app.showOutline([building], 0xffff00);
+                });
+            });
+        }
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+
+        //Switch Scene
+        app.onEvent(APP3D.Events.KEY_UP, function (event) {
+            switch (event.keyCode) {
+                case 65: // A
+                    app.switchScene("anyue_2", null, null, false);
+                    break;
+                case 66: // B
+                    app.switchScene("anyue", null, null, false);
+                    break;
+            }
+        });
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

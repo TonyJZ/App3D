@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        Tutorial is for create energy box.
+    </p>
+    <script>
+
+        /* Description of the site */
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }
+                    ]
+                }
+            ]
+        }
+
+        //  On load function called once the site loading is complete 
+        function onLoad() {
+            //  Get elect all buildings from the site 
+            let buildings = app.queryForObject("building_");
+            buildings.forEach((building) => {
+                building.onEvent(APP3D.Events.MOUSE_LEFT, (event) => {
+                    app.showOutline([building], 0xffff00);
+                });
+            });
+        }
+
+        /* Create an app with the site and on load function */
+        let app = new APP3D.App("parent", siteObj, onLoad);
+
+        var energyUsageParams = {
+            "a1": { height: 15, color: 0xa9e622 },
+            "a2": { height: 25, color: 0xffe719 },
+            "a3": { height: 10, color: 0xa9e622 },
+            "a4": { height: 10, color: 0xa9e622 },
+            "a5": { height: 50, color: 0xea1e27 },
+            "a6": { height: 60, color: 0xea1e27 },
+            "a7": { height: 45, color: 0xea1e27 },
+            "a8": { height: 35, color: 0xffe719 },
+            "a9": { height: 20, color: 0xa9e622 },
+            "a10": { height: 10, color: 0xa9e622 },
+            "a11": { height: 24, color: 0xffe719 },
+            "a12": { height: 12, color: 0xa9e622 },
+            "a13": { height: 21, color: 0xffe719 },
+            "a14": { height: 15, color: 0xa9e622 },
+            "a15": { height: 23, color: 0xffe719 }
+        };
+
+        var buildingOutlines = {
+            name: "outlines",
+            description: "buildingFootprint",
+            label: "buildingFootprint",
+            path: "./models/anyo_outlines_2D_skp_line.app1"
+        };
+
+        app.addObject(buildingOutlines, null, function () {
+            let polygons = app.queryForObject("outlines")[0];
+
+            // energyScene.updateMatrixWorld();
+            app.getCurrentScene().remove(polygons);
+            polygons.traverse((object) => {
+                if (object.type === "LineSegments") {
+                    if (energyUsageParams[object.name] !== undefined) {
+                        let energyBox = new APP3D.EnergyBox(
+                            object,
+                            energyUsageParams[object.name].height,
+                            energyUsageParams[object.name].color,
+                            app.getCurrentCamera()
+                        );
+
+                        energyBox.name = object.name;
+
+                        app.getCurrentScene().add(energyBox, true);
+                    }
+                }
+            });
+        });
+
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

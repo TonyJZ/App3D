@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial of fog example. <br>
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        }, {
+                            name: "building_a4",
+                            label: "Building A4",
+                            path: "models/building_a8.app2",
+                            type: "object"
+                        },
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        let scene = app.getCurrentScene();
+        // scene.setSkyBoxImage("jpg", "assets/Park3Med/");
+        scene.setBackgroundColor(0xa3a3a3);
+        
+        let fogType = { SelectType :"None" };
+        let paramsFog = {
+            apply: false,
+            color: "#a3a3a3",
+            near: 1,
+            far: 500,
+        };
+        let paramsFogExp2 = {
+            apply: false,
+            color: "#a3a3a3",
+            density: 0.0025,
+        };
+
+        // gui
+        const gui = new dat.GUI();
+        gui.add(fogType, "SelectType", ['None', 'Fog', 'FogExp2']).onChange(function () {
+            if (fogType.SelectType == 'Fog') {
+                scene.addFog(paramsFog.color, paramsFog.near, paramsFog.far);
+            } else if (fogType.SelectType == 'FogExp2') {
+                scene.addFogExp2(paramsFogExp2.color, paramsFogExp2.density);
+            } else {
+                scene.fog = null;
+            } 
+        });
+        var f1 = gui.addFolder('Fog');
+        f1.addColor(paramsFog, "color", 0xa3a3a3).onChange(function () {
+            if (scene.fog) {
+                scene.fog.color = new APP3D.Color(paramsFog.color);
+                scene.setBackgroundColor(paramsFog.color);
+            }
+        });
+        f1.add(paramsFog, "near", 0, 5, 1).onChange(function () {
+            if (scene.fog) {scene.fog.near = paramsFog.near; }
+        });
+        f1.add(paramsFog, "far", 100, 2000, 10).onChange(function () {
+            if (scene.fog) {scene.fog.far = paramsFog.far; }
+        });
+        f1.open();
+
+        var f2 = gui.addFolder('FogExp2');
+        f2.addColor(paramsFogExp2, "color", 0xa3a3a3).onChange(function () {
+            if (scene.fog) {
+                scene.fog.color = new APP3D.Color(paramsFogExp2.color);
+                scene.setBackgroundColor(paramsFogExp2.color);
+            }
+        });
+        f2.add(paramsFogExp2, "density", 0, 0.01, 0.00025).onChange(function () {
+            if (scene.fog) {scene.fog.density = paramsFogExp2.density; }
+        });
+        f2.open();
+    
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

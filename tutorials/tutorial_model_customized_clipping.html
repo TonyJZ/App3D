@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Appropolis 3D library</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+	<link href="css/main.css" rel="stylesheet" />
+	<link id="theme" href="css/light.css" rel="stylesheet" />
+	<link id="description" href="css/description.css" rel="stylesheet" />
+
+	<script src="lib/app3d.js"></script>
+	<script src="lib/inflate.min.js"></script>
+	<script src="lib/dat.gui.min.js"></script>
+
+	<style>
+		#viewport {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		}
+	</style>
+</head>
+
+<body id="parent", oncontextmenu="return false;">
+	<div id="progressbar"></div>
+	<p>
+		This tutorial for clipping medical models.<br>
+		Press "Q" to initial Clipping Operation.<br>
+		Press "W" to confirm Clipping Planes.<br>
+		Press "E" to undo select point.<br>
+		Mouse Left click draw points and lines. <br>
+		Mouse Right click close line.
+	</p>
+	<div id="container"></div>
+</body>
+
+<script type="text/javascript" id="mainCode">
+	// Description of the site
+	let siteObj = {
+		scenes: [
+		{
+			name: "anyue",
+			isPrimary: true,
+			camera: {
+				initialPosition: {
+					x: -1000.0,
+					y: 0.0,
+					z: 120.0
+				},
+				initialFocalPoint: {
+					x: 0,
+					y: -120,
+					z: 120
+				},
+				homePosition: {
+					x: -20.0,
+					y: 35.0,
+					z: -100.0
+				},
+				homeFocalPoint: {
+					x: 0,
+					y: 0,
+					z: 0
+				}
+			},
+			objects: [
+				{
+					name: "heart",
+					path: "models/stl/result.stl",
+					type: "object"
+				},
+			]
+		}
+		]
+	};
+	// Create an app with the site and on load function
+	function onLoad() {
+		// Get elect all obj from the site
+		obj = app.queryForObject("heart")[0];
+		renderer = app.renderer;
+		scene = app.getCurrentScene();
+		camera = app.getCurrentCamera();
+		camera.near = 1.0;
+		ClippingOperation = new APP3D.ClippingOperation(obj, scene, camera, renderer);
+		
+		clippingPolyline = new APP3D.Polyline();
+		scene.add(clippingPolyline);
+	}
+	let app = new APP3D.App("parent", siteObj, onLoad);
+	let renderer, scene, camera, obj;
+	let ClippingOperation = null;
+	let clippingPolyline = null;
+
+	let params = {
+		select: function() {
+			app.orbitControl.enabled = false;
+			mouseLeftClick(app);
+			mouseLeftClick(obj);
+			mouseRightClick(app);
+			mouseRightClick(obj);
+		},
+		endSelect: function() {
+			if (app.orbitControl.enabled == true) {
+				return;
+			}
+			clippingPolyline.closePath();
+			let parameters = {
+				type: "custom",
+				points: clippingPolyline.points,
+			}
+			ClippingOperation.generateClippingPlanes(parameters);
+		},
+		unlock: function() {
+			app.orbitControl.enabled = true;
+			clippingPolyline.clear();
+		}
+	};
+
+	let gui = new dat.GUI();
+	gui.add(params, 'select');
+	gui.add(params, 'endSelect');
+	gui.add(params, 'unlock');
+	gui.open();
+
+	function touchHandler(event)
+	{
+		var touches = event.changedTouches,
+			first = touches[0],
+			type = "";
+		switch(event.type)
+		{
+			case "touchstart": type = "mousedown"; break;
+			case "touchmove":  type = "mousemove"; break;        
+			case "touchend":   type = "mouseup";   break;
+			default:           return;
+		}
+
+		var simulatedEvent = document.createEvent("MouseEvent");
+		simulatedEvent.initMouseEvent(type, true, true, window, 1, 
+									first.screenX, first.screenY, 
+									first.clientX, first.clientY, false, 
+									false, false, false, 0/*left*/, null);
+
+		first.target.dispatchEvent(simulatedEvent);
+	}
+
+	document.addEventListener("touchstart", touchHandler, true);
+    document.addEventListener("touchmove", touchHandler, true);
+    document.addEventListener("touchend", touchHandler, true);
+	document.addEventListener("touchcancel", touchHandler, true);
+
+	function mouseLeftClick(any) {
+		any.onEvent(APP3D.Events.MOUSE_LEFT, function (event) {
+			if (app.orbitControl.enabled == true) {
+				return;
+			}
+			let vNow = new APP3D.Vector3(event.mouse.x, event.mouse.y, 0.0);
+			vNow.unproject(camera);
+			clippingPolyline.addPoint(vNow);
+		});
+	}
+	function mouseRightClick(any) {
+		any.onEvent(APP3D.Events.MOUSE_RIGHT, function (event) {
+			if (app.orbitControl.enabled == true) {
+				return;
+			}
+			clippingPolyline.closePath();
+			let parameters = {
+				type: "custom",
+				points: clippingPolyline.points,
+			}
+			ClippingOperation.generateClippingPlanes(parameters);
+		});
+	}
+
+	app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+	switch (event.keyCode) {
+		case 81: //Q
+			app.orbitControl.enabled = false;
+			mouseLeftClick(app);
+			mouseLeftClick(obj);
+			mouseRightClick(app);
+			mouseRightClick(obj);
+			break;
+		case 87: //W
+			app.orbitControl.enabled = true;
+			clippingPolyline.clear();
+			break;
+		case 69: //E
+			clippingPolyline.deleteLastPoint();
+			break;
+
+		default:
+			// console.log("key code", event.keyCode);
+			break;
+	}
+});
+
+</script>
+
+</html>

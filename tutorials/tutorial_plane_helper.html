@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        (This is a Template for new tutorial.) <br>
+        This is the tutorial description. <br>
+        This is the usages.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        }, 
+                        // {
+                        //     name: "building_a4",
+                        //     label: "Building A4",
+                        //     path: "models/building_a8.app2",
+                        //     type: "object"
+                        // }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            var camera = app.getCurrentCamera();
+            
+            // camera.updateMatrix();
+            // camera.updateMatrixWorld();
+            // camera.matrixWorldInverse.getInverse( camera.matrixWorld );
+
+            let opts = {
+                name: "building_a4_new",
+                label: "Building A4",
+                path: "models/building_a8.app2",
+                type: "object"
+            };
+
+            // app.addObject(opts, null, () => {
+            //     let filledObj = app.queryForObject("building_a4_new")[0];
+
+            let myTestObj = new APP3D.BaseObject(opts, (filledObj) => {
+                
+                filledObj.updateMatrix();
+                filledObj.updateMatrixWorld();
+                let cloneObj = filledObj.clone();
+                cloneObj.name = "building_a4_clone";
+                // app.getCurrentScene().add(cloneObj, true);
+                let v = new APP3D.Vector3();
+                cloneObj.getWorldPosition(v);
+                console.log(v);
+
+                let building_a2 = app.queryForObject("building_a2")[0];
+
+                building_a2.updateMatrix();
+                building_a2.updateMatrixWorld();
+
+                // filledObj.applyMatrix( new APP3D.Matrix4().getInverse( camera.matrixWorld ) );
+                filledObj.applyMatrix(camera.matrixWorldInverse);
+                filledObj.setSelectable(true);
+                camera.add( filledObj );
+
+                app.getCurrentScene().add(camera);
+
+                filledObj.getWorldPosition(v);
+                console.log(v);
+
+                let objects = app.queryForObject("ground|building_");
+                objects.forEach(function (obj) {
+                    obj.onEvent(APP3D.Events.MOUSE_LEFT, function (event) {
+                        onSelect(event.object);
+                    });
+                });
+
+                app.onEvent(APP3D.Events.MOUSE_LEFT, deselectAll.bind(this));
+            });
+
+            var clipPlanes = [
+				new APP3D.Plane( new APP3D.Vector3( 1, 0, 0 ), 0 ),
+				new APP3D.Plane( new APP3D.Vector3( 0, - 1, 0 ), 0 ),
+				new APP3D.Plane( new APP3D.Vector3( 0, 0, - 1 ), 0 )
+		    ];
+
+            let h1 = new APP3D.PlaneHelper( clipPlanes[ 0 ], 100, 0xff0000 );
+            let h2 = new APP3D.PlaneHelper( clipPlanes[ 1 ], 100, 0x00ff00 );
+            let h3 = new APP3D.PlaneHelper( clipPlanes[ 2 ], 100, 0x0000ff );
+
+            let objh = new APP3D.BaseObject(); 
+            objh.add(h1);
+            objh.add(h2);
+            objh.add(h3);
+
+            // objh.applyMatrix( camera.matrixWorldInverse );
+            // camera.add(objh);
+            app.getCurrentScene().add(objh);
+            // app.getCurrentScene().add(h2);
+            // app.getCurrentScene().add(h3);
+        }
+
+        var selectedObject = null;
+        function onSelect(obj) {
+            if(selectedObject !== null) {
+                selectedObject.hideOutline();
+                selectedObject.hideTransformationControl();
+           }
+
+           app.showOutline([obj], 0xffff00);
+           obj.showTransformationControl("translate");
+           selectedObject = obj;
+        }
+
+        function deselectAll() {
+            if (selectedObject !== null) {
+                app.showOutline([]);
+                selectedObject.hideTransformationControl();
+            }
+        }
+
+        
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        // app.showCameraHelper(true);
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for particle fountain. <br>
+        For CPU fountainTexture is a video texture. Can also change to a picture texture<br>
+        Press "Q" to switch to CPU fountain. <br>
+        Press "W" to swtich to GPU fountains. <br>
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            app.showStatsInfo(true);
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        let particleFountainCPU;
+        let particleFountainGPU;
+        let imgTexture = "./images/droptexture.png";
+        let canvasVideo = document.createElement("video");
+        canvasVideo.src = "assets/video.mp4";
+        canvasVideo.load();
+        canvasVideo.loop = true;
+        let videoBool = false;
+
+        let parametersCPU = {
+            imgTexture : imgTexture,
+            canvasVideo : canvasVideo,
+            videoBool: videoBool,
+            scene: app.getCurrentScene(),
+            size: 0.1, //size of particle,
+            particles: 100, // number of particles in each wave
+            totalParticles: 3000, // total number of particles
+            particleInterval: 50, // interval between each wave
+            position: { x: 0, y: 0, z: 0}, // mean initial position
+            positionVariance: { x: 0.2, y: 0.2, z: 0.2}, // variance of initial position
+            initialSpeed: { x: 3, y: 6, z: 2.3}, // mean initial speed
+            variance: { x: 0.6, y: 0.4, z: 0.6}, // variance of initial speed
+            varianceLimit: 0.3, // limit the sharp of fountain when looking down
+            lowerLimit: 0, // the y position when water drop disappear, must be no more than initial position.
+        };
+        let parametersGPU = {
+            scene: app.getCurrentScene(),
+            pointNumber: 3000,
+            pointSize: 6,
+            startLocation: { x: 10, y: 0, z: -20.2233 },
+            stopHeight: 2,
+            directionRangeX: [-0.1, 0.1],
+            directionRangeY: [0.9, 1.0],
+            directionRangeZ: [-0.1, 0.1],
+            startVelocity: [10, 11],
+            sprayAngle: 5, // degree
+            textureUrl: "./images/droptexture.png",
+        };
+
+        particleFountainCPU = new APP3D.ParticleFountainCPU(parametersCPU);
+        let currentFountain = "CPU";
+        
+        app.onEvent(APP3D.Events.KEY_UP, function (event) {
+            switch (event.keyCode) {
+                case 81: // Q
+                    if(currentFountain !== "CPU") {
+                        particleFountainGPU.clear();
+                        particleFountainCPU = new APP3D.ParticleFountainCPU(parametersCPU);
+                        currentFountain = "CPU";
+                    }
+                    break;
+                case 87: // W
+                    if(currentFountain != "GPU") {
+                        particleFountainCPU.clear();
+                        particleFountainGPU = new APP3D.ParticleFountainGPU(parametersGPU);
+                        currentFountain = "GPU";
+                    }
+                    break;
+
+                default:
+                  console.log("key code", event.keyCode);
+                  break;
+            }
+        });
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

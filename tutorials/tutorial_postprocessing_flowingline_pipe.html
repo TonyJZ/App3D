@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+    <script src="./models/route.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is a Tutorial for add flowing line shader effect. <br>
+        All parameters not in uniforms are required. Parameters in uniforms are optional.<br>
+        Press 'W' to change headLength, press 'E' to change tailLength, <br>
+        Press 'R' to change the headPosition, press 'X' to change the direction.<br>
+        Original display is shader flowingpipe. Press 'Z' to display unrealbloom effect flowingline.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        },
+                        {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        },
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        let effect1, effect2, composer;
+        function onLoad() {
+            app.getCurrentScene().sun.intensity = 0.1;
+            app.getCurrentScene().ambientLight.intensity = 0.1;
+            app.getCurrentScene().ambientLight.color.setHex(0xffffff);
+            let scene = app.getCurrentScene();
+
+            line = pipelinePath[0];
+            let shaderEffect = "FlowingLineEffectPipe";
+            let parameters = {
+                scene: scene,
+                meshName: line.name,
+                restore: false,
+                closed: false,
+                path: line.routeArray[0].route,
+                shaderStyle: lineStyles[line.name],
+                style: line.routeArray[0].segStyle,
+                // layers: 0,
+            };
+            effect1 = new APP3D.ShaderFactory(shaderEffect, parameters);
+
+            line2 = pipelinePath[1];
+            let shaderEffect2 = "FlowingLineEffectPipe";
+            let parameters2 = {
+                scene: scene,
+                meshName: line2.name,
+                restore: false,
+                closed: true,
+                path: line2.routeArray[0].route,
+                shaderStyle: lineStyles[line2.name],
+                style: line2.routeArray[0].segStyle,
+                layers: 1,
+            };
+            effect2 = new APP3D.ShaderFactory(shaderEffect2, parameters2);
+
+            effArray.push(effect1);
+            effArray.push(effect2);
+            scene.add(effect1.getBaseObject());
+            scene.add(effect2.getBaseObject());
+    }
+
+    // Create an app with the site and on load function
+    let app = new APP3D.App("parent", siteObj, onLoad);
+    let renderer = app.getCurrentRender();
+    let camera = app.getCurrentCamera();
+    let scene = app.getCurrentScene();
+    addPointLights();
+
+    let effArray = [];
+    let oldComposer;
+    app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+        let scene = app.getCurrentScene();
+        switch (event.keyCode) {
+            // Example for setup parameters
+            case 88: // X
+                effect1.updateParameters({direction: 0.0});
+                break;
+            case 87: // W
+                parameters4 = {
+                    headLength: 0.9,
+                };
+                effect1.updateParameters(parameters4);
+                break;
+
+            case 69: // E
+                parameters5 = {
+                    tailLength: 0.79,
+                };
+                effect2.updateParameters(parameters5);
+                break;
+
+            case 82: // R
+                parameters6 = {
+                    headPosition: 0.9,
+                };
+                effect1.updateParameters(parameters6);
+                break;
+
+            case 81: // Q
+                effArray.forEach(effect => {
+                    if(effect.getBaseObject().name === pipelinePath[0].name)
+                        scene.remove(effect.getBaseObject());
+                });
+                
+                break;
+
+            case 90: // z
+                oldComposer = app.composer;
+                let bloomparameters = {
+                    renderer: app.renderer,
+                    scene: app.getCurrentScene(),
+                    camera: app.getCurrentCamera(),
+                    threshold: 0.21,
+                    strength: 0.8,
+                    radius : 0.3,
+                };
+                bloomComposer = new APP3D.EffectComposerFactory("bloom", bloomparameters);
+                bloomComposer.renderToScreen = false;
+                let finalparameters = {
+                    renderer: app.renderer,
+                    scene: app.getCurrentScene(),
+                    camera: app.getCurrentCamera(),
+                    renderTargetTexture: bloomComposer.renderTarget2.texture,
+                };
+                finalComposer = new APP3D.EffectComposerFactory("final", finalparameters);
+                app.setCustomizedRender(render);
+                break;
+
+            default:
+                console.log("key code", event.keyCode);
+                break;
+        }
+    });
+
+    function render() {
+            renderer.autoClear = false;
+            camera.layers.set(1);
+            bloomComposer.render();
+            
+            renderer.clearDepth();
+            camera.layers.set(0);
+            finalComposer.renderToScreen = true;
+            finalComposer.render();
+    }
+
+    function addPointLights() {
+            var sphere = new APP3D.SphereBufferGeometry(0.5, 16, 8);
+            let light = app.getCurrentScene().addLight("PointLight", {
+                color: 0x0000ff,
+                intensity: 8,
+            });
+            light.layers.enable(1);
+            light.layers.disable(0);
+            light.position.set(0, 25, 0);
+    }
+        
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

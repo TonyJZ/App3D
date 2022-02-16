@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        Skybox and envMap tutorial <br>
+        press 'C' to use cube box images.<br>
+        press 'E' to use equirectangular image.
+    </p>
+    <script>
+
+        /* Description of the site */
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "machine",
+                            label: "machine",
+                            path: "models/machine/test.app3",
+                            type: "object",
+                            matrix: {
+                                elements: [
+                                    0.1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0.1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0.1,
+                                    0,
+                                    0,
+                                    10,
+                                    0,
+                                    1
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+
+        //  On load function called once the site loading is complete 
+        function onLoad() {
+            object = app.queryForObject("machine")[0];
+            console.log(object);
+            object.traverse((child) => {
+                if (child.isMesh) {
+                    // child.material.map = null;
+                    child.material.transparent = false;
+                    child.material.opacity = 1;
+                    child.material.roughness = 0.1;
+                    child.material.metalness = 0.8;
+                    // child.material.emissive.setHex(0xaaaaaa);
+                    // child.material.emissiveIntensity = 0.2;
+                }
+            });
+            // object.setEnvMap("png", "../tutorials/assets/pisa/");
+        }
+
+        /* Create an app with the site and on load function */
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        var object;
+        app.getCurrentScene().setSkyBoxImage("png", "assets/pisa/");
+        app.getCurrentScene().sun.intensity = 0;
+        app.getCurrentScene().ambientLight.intensity = 1;
+        app.getCurrentScene().ambientLight.color.setHex(0xffffff); // 0xf59191
+
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            var key = event.code || event.key;
+            if (key.length === 1) {
+                key = "Key" + key.toUpperCase();
+            }
+
+            switch (key) {
+                case "KeyC":
+                    app.getCurrentScene().setSkyBoxImage("png", "assets/pisa/");
+                    object.setEnvMapCubeImage("png", "assets/pisa/");
+                    break;
+                case "KeyE":
+                    app.getCurrentScene().setEquirectangularSkyBox("assets/2294472375_24a3b8ef46_o.jpg");
+                    object.setEnvMapEquirectangularImage("assets/2294472375_24a3b8ef46_o.jpg", app.getCurrentRender(), 1024);
+                    break;
+                default:
+                    break;
+            }
+        });
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

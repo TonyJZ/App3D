@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is a tutorial for transform controls. <br>
+        Select Object First. Then<br>
+        Press 'T' to switch to 'translate', press 'R' to switch to 'rotate', press 'S' to switch to 'scale' <br>
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        },
+                        {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        },
+                        {
+                            name: "cabinet",
+                            path: "models/server_01.app3",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            let cabinet0 = app.queryForObject("cabinet")[0];
+            cabinet0.translateX(20);
+            cabinet0.translateZ(20);
+            cabinet0.scale.set(10, 10, 10);
+
+            let objects = app.queryForObject("ground|building_|cabinet");
+            objects.forEach(function (obj) {
+                obj.onEvent(APP3D.Events.MOUSE_LEFT, function (event) {
+                    onSelect(event.object);
+                });
+            });
+
+            app.onEvent(APP3D.Events.MOUSE_LEFT, deselectAll.bind(this));
+        }
+
+        var selectedObject = null;
+        function onSelect(obj) {
+            if(selectedObject !== null) {
+                selectedObject.hideOutline();
+                selectedObject.hideTransformationControl();
+           }
+
+           app.showOutline([obj], 0xffff00);
+           obj.showTransformationControl("translate");
+           selectedObject = obj;
+        }
+
+        function deselectAll() {
+            if (selectedObject !== null) {
+                app.showOutline([]);
+                selectedObject.hideTransformationControl();
+            }
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            var key = event.code || event.key;
+            if (key.length === 1) {
+                key = "Key" + key.toUpperCase();
+            }
+            // let plane = null;
+            switch (key) {
+                case "KeyT":
+                    if(selectedObject !== null) {
+                        selectedObject.showTransformationControl("translate");
+                    }
+                    break;
+                case "KeyR":
+                    if(selectedObject !== null) {
+                        selectedObject.showTransformationControl("rotate");
+                    }
+                    break;
+                case "KeyS":
+                    if(selectedObject !== null) {
+                        selectedObject.showTransformationControl("scale");
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        Add a glowing object into scene. <br>
+    </p>
+    <script>
+
+        /* Description of the site */
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }
+                    ]
+                }
+            ]
+        };
+
+        //  On load function called once the site loading is complete 
+        function onLoad() {
+            //  Get elect all buildings from the site 
+            let buildings = app.queryForObject("building_");
+            buildings.forEach((building) => {
+                building.onEvent(APP3D.Events.MOUSE_LEFT, (event) => {
+                    app.showOutline([building], 0xffff00);
+                });
+            });
+        }
+
+        /* Create an app with the site and on load function */
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        var cube = new APP3D.BoxGeometry(10, 10, 10);
+        let glowingCube = new APP3D.GlowingObject(cube, app.getCurrentCamera(),
+            { color: 0xff0000, c: 1.0, p: 1.0, side: "FrontSide", blending: "NormalBlending" });
+        glowingCube.name = "glowing cube";
+        glowingCube.position.set(0, 30, 0);
+        app.getCurrentScene().add(glowingCube);
+
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

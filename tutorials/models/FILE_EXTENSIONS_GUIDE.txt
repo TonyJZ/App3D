@@ -1,0 +1,5 @@
+.dae  -> .app1
+.glb  -> .app2
+.gltf -> .app3
+.fbx  -> .app4
+.js   -> .app5

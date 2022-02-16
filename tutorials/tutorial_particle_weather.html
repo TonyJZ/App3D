@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for particle weather. <br>
+        Press "Q" to switch to Rain by CPU. <br>
+        Press "W" to switch to Snow by CPU. <br>
+        Press "E" to switch to Rain by GPU. <br>
+        Press "R" to switch to Snow by GPU. <br>
+        Press "T" to switch to Fog by GPU.<br>
+        Press "X" to remove weather and reset parameters.<br>
+        Parameters only work on GPU Rain and Snow.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        }, {
+                            name: "building_a4",
+                            label: "Building A4",
+                            path: "models/building_a8.app2",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            let scene = app.getCurrentScene();
+            particleWeatherCPU = new APP3D.ParticleWeatherCPU(parametersWeatherCPU);
+            particleWeatherGPU = new APP3D.ParticleWeatherGPU(parametersWeatherGPU);
+            particleFogGPU = new APP3D.ParticleFogGPU(parametersFogGPU);
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        let particleWeatherCPU = null;
+        let particleWeatherGPU = null;
+        let particleFogGPU = null;
+
+        let params = {
+            'particles': 100,
+            'South-North': 0.0,
+            'East-West': 0.0,
+            'WindLevel': 0.0,
+        };
+
+        let gui = new dat.GUI();
+        gui.add(params, 'particles', 100, 5000).step(100).onChange(function(val) {
+            particleWeatherGPU.updateParticles(val);
+        });
+	    gui.add(params, 'South-North', -1, 1).step(0.001).onChange(function(val) {
+            particleWeatherGPU.updateWindSN(val);
+        });
+        gui.add(params, 'East-West', -1, 1).step(0.001).onChange(function(val) {
+            particleWeatherGPU.updateWindEW(val);
+        });
+        gui.add(params, 'WindLevel', 0, 0.5).step(0.001).onChange(function(val) {
+            particleWeatherGPU.updateWindLevel(val);
+        });
+        gui.open();
+
+        let parametersWeatherCPU = {
+            scene: app.getCurrentScene(),
+            particleAmount: 5000,
+            wind : 0.15
+        };
+
+        let parametersWeatherGPU = {
+            scene: app.getCurrentScene(),
+            camera: app.getCurrentCamera(),
+        };
+
+        let parametersFogGPU = {
+            scene: app.getCurrentScene(),
+            camera: app.getCurrentCamera(),
+        }
+
+        app.onEvent(APP3D.Events.KEY_UP, function (event) {
+            switch (event.keyCode) {
+                case 81: // Q
+                    particleWeatherCPU.clear();
+                    particleWeatherGPU.clear();
+                    particleFogGPU.clear();
+                    particleWeatherCPU.rain({x: 400, y: 200, z:400});
+                    break;
+                case 87: // W
+                    particleWeatherCPU.clear();
+                    particleWeatherGPU.clear();
+                    particleFogGPU.clear();
+                    particleWeatherCPU.snow({x: 400, y: 200, z:400});
+                    break;
+                case 69: // E
+                    particleWeatherCPU.clear();
+                    particleWeatherGPU.clear();
+                    particleFogGPU.clear();
+                    params["particles"] = 100;
+                    params["South-North"] = 0.0;
+                    params["East-West"] = 0.0;
+                    params["WindLevel"] = 0.0;
+                    gui.updateDisplay();
+
+                    particleWeatherGPU.rain({x: 400, y: 200, z:400});
+                    break;
+                case 82: // R
+                    particleWeatherCPU.clear();
+                    particleWeatherGPU.clear();
+                    particleFogGPU.clear();
+                    params["particles"] = 100;
+                    params["South-North"] = 0.0;
+                    params["East-West"] = 0.0;
+                    params["WindLevel"] = 0.0;
+                    gui.updateDisplay();
+                    
+                    particleWeatherGPU.snow({x: 400, y: 200, z:400});
+                    break;
+                case 84: // T
+                    particleWeatherCPU.clear();
+                    particleWeatherGPU.clear();
+                    particleFogGPU.clear();
+                    particleFogGPU.fog({x: 300, y: 20, z: 350}, 0.5);
+                    break;
+                case 88: // X
+                    particleWeatherCPU.clear();
+                    particleWeatherGPU.clear();
+                    particleFogGPU.clear();
+
+                    params["particles"] = 100;
+                    params["South-North"] = 0.0;
+                    params["East-West"] = 0.0;
+                    params["WindLevel"] = 0.0;
+                    gui.updateDisplay();
+
+                    break;
+                default:
+                  console.log("key code", event.keyCode);
+                  break;
+            }
+        });
+
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the toturial for bloom effect solved by multiple layer method. <br>
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        },
+                        {
+                            name: "building_a1",
+                            label:"Building A1",
+                            path: "models/building_a1.app2",
+                            type: "object"
+                        },
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            let building = app.queryForObject("building")[0];
+
+            app.getCurrentScene().traverse((child) => {
+                if(child.isMesh && child.name === "Untitled.081_2") {
+                    child.layers.set(1); // change to "set" will solve low fps problem
+                }
+            });
+            let bloomparameters = {
+                renderer: app.renderer,
+                scene: app.getCurrentScene(),
+                camera: app.getCurrentCamera(),
+                threshold: 0.21,
+                strength: 2.0,
+                radius : 5.0,
+            };
+            bloomComposer = new APP3D.EffectComposerFactory("bloom", bloomparameters);
+            bloomComposer.renderToScreen = false;
+            let finalparameters = {
+                renderer: app.renderer,
+                scene: app.getCurrentScene(),
+                camera: app.getCurrentCamera(),
+                renderTargetTexture: bloomComposer.renderTarget2.texture,
+            };
+            finalComposer = new APP3D.EffectComposerFactory("final", finalparameters);
+            app.setCustomizedRender(render);
+        }
+
+        // Create an app with the site and on load function
+        var composer = null;
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.getCurrentScene().sun.intensity = 1.0;
+        app.getCurrentScene().sun.layers.enable(1);
+        app.getCurrentScene().ambientLight.intensity = 0.25;
+        app.getCurrentScene().ambientLight.layers.enable(0);       
+        let renderer = app.getCurrentRender();
+        let camera = app.getCurrentCamera();
+        let scene = app.getCurrentScene();
+        addPointLights();
+
+        function addPointLights() {
+            var sphere = new APP3D.SphereBufferGeometry(0.5, 16, 8);
+            let light = app.getCurrentScene().addLight("PointLight", {
+                color: 0xffff00,
+                intensity: 4,
+            });
+            light.layers.enable(1);
+            light.layers.disable(0);
+            light.position.set(0, 6, 0);
+            light.add(new APP3D.Mesh(sphere, new APP3D.MeshBasicMaterial({ color: 0xffff00 })));
+            
+            let updatePointLight = function (light, dx, dy, dz, delta) {
+                var time = Date.now() * 0.001;
+                light.position.x = Math.sin(time * dx) * 60 + 30;
+                light.position.z = Math.cos(time * dz) * 60 + 30;
+                return true;
+            };
+            light.aniName = "pLAnim1";
+            let pLAnim1 = new APP3D.Animation(light.aniName, updatePointLight,
+                [light, 0.7, 0.5, 0.3]);
+            app.getCurrentScene().animations.addWithReplace(pLAnim1);
+        };
+
+        function render() {
+            renderer.autoClear = false;
+            camera.layers.set(1);
+            bloomComposer.render();
+            
+            renderer.clearDepth();
+            camera.layers.set(0);
+            finalComposer.renderToScreen = true;
+            finalComposer.render();
+        }
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

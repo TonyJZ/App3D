@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+        <script src="lib/app3d.js"></script>
+        <script src="lib/inflate.min.js"></script>
+    <script src="./assets/glow_effect/pipelineConfig.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <div id="info">
+        <p>
+            This tutorial is testing the bloom effect. <br>
+            press 'N' to normal rendering, press 'B' to bloom rendering,<br>
+            press 'P' to turn on/off the point lights,<br>
+            press 'R' to turn on/off the rectArea light,<br>
+            press 'E' to enable emissive map.
+        </p>
+    </div>
+
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "glowingScene",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 50,
+                            y: 80,
+                            z: -30
+                        },
+                        initialFocalPoint: {
+                            x: 0,
+                            y: 0,
+                            z: 0
+                        },
+                        homePosition: {
+                            x: 0,
+                            y: 0,
+                            z: 0
+                        },
+                        homeFocalPoint: {
+                            x: 0,
+                            y: 0,
+                            z: 0
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "assets/glow_effect/floor.app3",
+                            type: "ground",
+                            matrix: {
+                                elements: [
+                                    1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    0,
+                                    0,
+                                    -10,
+                                    0,
+                                    1
+                                ]
+                            }
+                        }, {
+                            name: "oiltank",
+                            path: "assets/glow_effect/scene02_airport_model_oilTank.app2",
+                            type: "object",
+                            selectableObjectExp: [
+                                {
+                                    name: "model_oilTank_TK-A",
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-B",
+                                    // label: strings.airport_oil_tanks("TK-B"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-C",
+                                    // label: strings.airport_oil_tanks("TK-C"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-D",
+                                    // label: strings.airport_oil_tanks("TK-D"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-E",
+                                    // label: strings.airport_oil_tanks("TK-E"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-F",
+                                    // label: strings.airport_oil_tanks("TK-F"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-G",
+                                    // label: strings.airport_oil_tanks("TK-G"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-H",
+                                    // label: strings.airport_oil_tanks("TK-H"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-I",
+                                    // label: strings.airport_oil_tanks("TK-I"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-J",
+                                    // label: strings.airport_oil_tanks("TK-J"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-K",
+                                    // label: strings.airport_oil_tanks("TK-K"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-L",
+                                    // label: strings.airport_oil_tanks("TK-L"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-M",
+                                    // label: strings.airport_oil_tanks("TK-M"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-N",
+                                    // label: strings.airport_oil_tanks("TK-N"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-O",
+                                    // label: strings.airport_oil_tanks("TK-O"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-P",
+                                    // label: strings.airport_oil_tanks("TK-P"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-Q",
+                                    // label: strings.airport_oil_tanks("TK-Q"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-R",
+                                    // label: strings.airport_oil_tanks("TK-R"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-S",
+                                    // label: strings.airport_oil_tanks("TK-S"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-T",
+                                    // label: strings.airport_oil_tanks("TK-T"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-U",
+                                    // label: strings.airport_oil_tanks("TK-U"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-V",
+                                    // label: strings.airport_oil_tanks("TK-V"),
+                                    stopDistance: 200
+                                },
+                                {
+                                    name: "model_oilTank_TK-W",
+                                    // label: strings.airport_oil_tanks("TK-W"),
+                                    stopDistance: 200
+                                }
+                            ],
+                            matrix: {
+                                elements: [
+                                    0.2,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0.2,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0.2,
+                                    0,
+                                    0,
+                                    10,
+                                    0,
+                                    1
+                                ]
+                            }
+                        },
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            let ground = app.queryForObject("ground")[0];
+            ground.setEnvMapTexture(app.getCurrentScene().envMap);
+
+            let objs = app.queryForObject("oiltank");
+            objs.forEach(function (obj) {
+                // building.onEvent(APP3D.Events.MOUSE_LEFT, function(event){
+                //     app.showOutline([building], 0xffff00);
+                // });
+                obj.setEnvMapCubeImage("jpg", "./assets/bluesky/");
+                obj.traverse((child) => {
+                    if (child.isMesh) {
+                        // child.material.map = null;
+                        // child.material.transparent = true;
+                        // child.material.opacity = 0.8;
+                    }
+                });
+            });
+
+            let geometry = new APP3D.BoxGeometry(10, 10, 10);
+            let material = new APP3D.MeshPhongMaterial({ color: 0x222222, transparent: true, opacity: 0.8 });
+            material.emissiveMap = APP3D.Texture.load("./assets/glow_effect/星光.jpg");
+            // APP3D.ImageUtils.loadTexture("./assets/glow_effect/星光.jpg");
+            material.emissive.setHex(0x00ffff);
+            material.emissiveIntensity = 2;
+
+            var mesh = new APP3D.Mesh(geometry, material);
+            mesh.position.set(-20, 30, 0);
+            app.getCurrentScene().add(mesh);
+
+            let mesh1 = new APP3D.Mesh(geometry.clone(), material.clone());
+            mesh1.material.emissive.setHex(0xf40000);
+            mesh1.material.emissiveIntensity = 5;
+            mesh1.material.emissiveMap = APP3D.Texture.load("./assets/glow_effect/tex_guangdong_ao.jpg");
+            // APP3D.Texture.load("./assets/glow_effect/tex_guangdong_ao.jpg");
+            // APP3D.ImageUtils.loadTexture("./assets/glow_effect/tex_guangdong_ao.jpg");
+            mesh1.position.set(20, 30, 0);
+            app.getCurrentScene().add(mesh1);
+
+            let mesh2 = new APP3D.Mesh(geometry.clone(), material.clone());
+            mesh2.material.emissive.setHex(0xffffff);
+            mesh2.material.emissiveIntensity = 10;
+            mesh2.material.emissiveMap = APP3D.Texture.load("./assets/glow_effect/光圈.png");
+            // APP3D.ImageUtils.loadTexture("./assets/glow_effect/光圈.png");
+            mesh2.position.set(0, 30, 0);
+            app.getCurrentScene().add(mesh2);
+
+            //create pipelines
+            // this.pipelines = [];
+            for (var i = 0; i < PipelineParams.length; ++i) {
+                var pipe = new APP3D.Pipeline();
+                pipe.create(PipelineParams[i].name, PipelineParams[i].label, PipelineParams[i].pipeStyle, PipelineParams[i].routeArray);
+                // this.pipelines.push(pipe);
+                app.getCurrentScene().add(pipe, true);
+            }
+
+            // app.getCurrentScene().updateGridHelper();
+
+            restoreNormal();
+        }
+
+        // Create an app with the site and on load function
+        var app = new APP3D.App("parent", siteObj, onLoad);
+        app.getCurrentScene().setSkyBoxImage("jpg", "./assets/MilkyWay/");
+        var pointLights = [];
+        var bShowPointLight = false;
+        var rectAreaLight = null;
+        var bShowRectAreaLight = false;
+        var sceneOrigin = new APP3D.Vector3(0, -30, 0);
+        var bUseEmissiveMap = false;
+
+        function addPointLights() {
+            //lights
+            let intensity = 2;
+            let distance = 50;
+            let decay = 2.0;
+
+            var sphere = new APP3D.SphereBufferGeometry(0.5, 16, 8);
+            let lights = [];
+
+            let li;
+            li = app.getCurrentScene().addLight("PointLight", {
+                color: 0xff0040,
+                intensity: intensity,
+                distance: distance,
+                decay: decay
+            });
+            li.add(new APP3D.Mesh(sphere, new APP3D.MeshBasicMaterial({ color: 0xff0040 })));
+            lights.push(li);
+
+            li = app.getCurrentScene().addLight("PointLight", {
+                color: 0x0040ff,
+                intensity: intensity,
+                distance: distance,
+                decay: decay
+            });
+            li.add(new APP3D.Mesh(sphere, new APP3D.MeshBasicMaterial({ color: 0x0040ff })));
+            lights.push(li);
+
+            li = app.getCurrentScene().addLight("PointLight", {
+                color: 0x80ff80,
+                intensity: intensity,
+                distance: distance,
+                decay: decay
+            });
+            li.add(new APP3D.Mesh(sphere, new APP3D.MeshBasicMaterial({ color: 0x80ff80 })));
+            lights.push(li);
+
+            li = app.getCurrentScene().addLight("PointLight", {
+                color: 0xffaa00,
+                intensity: intensity,
+                distance: distance,
+                decay: decay
+            });
+            li.add(new APP3D.Mesh(sphere, new APP3D.MeshBasicMaterial({ color: 0xffaa00 })));
+            lights.push(li);
+
+            let updatePointLight = function (light, dx, dy, dz, delta) {
+                var time = Date.now() * 0.0005;
+                light.position.x = Math.sin(time * dx) * 30;
+                light.position.y = Math.cos(time * dy) * 40;
+                light.position.z = Math.cos(time * dz) * 30;
+                return true;
+            };
+
+            lights[0].aniName = "pLAnim1";
+            let pLAnim1 = new APP3D.Animation(lights[0].aniName, updatePointLight,
+                [lights[0], 0.7, 0.5, 0.3]);
+            app.getCurrentScene().animations.addWithReplace(pLAnim1);
+
+            lights[1].aniName = "pLAnim2";
+            let pLAnim2 = new APP3D.Animation(lights[1].aniName, updatePointLight,
+                [lights[1], 0.3, 0.5, 0.7]);
+            app.getCurrentScene().animations.addWithReplace(pLAnim2);
+
+            lights[2].aniName = "pLAnim3";
+            let pLAnim3 = new APP3D.Animation(lights[2].aniName, updatePointLight,
+                [lights[2], 0.7, 0.3, 0.5]);
+            app.getCurrentScene().animations.addWithReplace(pLAnim3);
+
+            lights[3].aniName = "pLAnim4";
+            let pLAnim4 = new APP3D.Animation(lights[3].aniName, updatePointLight,
+                [lights[3], 0.3, 0.7, 0.5]);
+            app.getCurrentScene().animations.addWithReplace(pLAnim4);
+
+            return lights;
+        };
+
+        function removePointLights(lights) {
+            lights.forEach(li => {
+                app.getCurrentScene().animations.remove(li.aniName);
+                app.getCurrentScene().removeLight(li);
+            });
+        };
+
+        function addRectAreaLight() {
+            let light = app.getCurrentScene().addLight("RectAreaLight", {
+                color: 0xff0000,
+                intensity: 1, width: 5, height: 10
+            });
+
+            light.position.set(100, 250, -40);
+            let rectLightMesh = new APP3D.Mesh(new APP3D.PlaneBufferGeometry(), new APP3D.MeshBasicMaterial({ color: 0xff0000 }));
+            rectLightMesh.scale.x = light.width;
+            rectLightMesh.scale.y = light.height;
+            light.add(rectLightMesh);
+            // var rectLightMeshBack = new APP3D.Mesh( new APP3D.PlaneBufferGeometry(), new APP3D.MeshBasicMaterial( { color: 0x080808 } ) );
+            // rectLightMesh.add( rectLightMeshBack );
+
+            let updateRectAreaLight = function (light) {
+                var t = (Date.now() / 2000);
+                // move light in circle around center
+                // change light height with sine curve
+                var r = 30.0;
+                var lx = r * Math.cos(t);
+                var lz = r * Math.sin(t);
+                var ly = 25.0 + 5.0 * Math.sin(t / 3.0);
+                light.position.set(lx, ly, lz);
+                light.lookAt(sceneOrigin);
+            }
+
+            light.aniName = "rectAreaLightAnimation";
+            let anim = new APP3D.Animation(light.aniName, updateRectAreaLight,
+                [light]);
+            app.getCurrentScene().animations.addWithReplace(anim);
+
+            return light;
+        };
+
+        function removeRectAreaLight(light) {
+            app.getCurrentScene().animations.remove(light.aniName);
+            app.getCurrentScene().removeLight(light);
+        }
+
+        function restoreNormal() {
+            app.getCurrentScene().sun.intensity = 1;
+            app.getCurrentScene().ambientLight.intensity = 0.5;
+
+            app.setBloomStyle({
+                    enabled: false
+            });
+        };
+
+        function turnOnUnRealBloomPass() {
+            app.getCurrentScene().sun.intensity = 0;
+            app.getCurrentScene().ambientLight.intensity = 0.05;
+            app.getCurrentScene().ambientLight.color.setHex(0xffffff); // 0xf59191
+
+            //add lights
+            // app.getCurrentScene().addLight("HemisphereLight", {skyColor:0x00ff00, groundColor:0xff0000, intensity:0.2});
+
+            app.setBloomStyle({
+                    enabled: true,
+                exposure: 1,
+                bloomStrength: 0.5,
+                bloomThreshold: 0,
+                bloomRadius: 0
+            });
+        };
+
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            var key = event.code || event.key;
+            if (key.length === 1) {
+                key = "Key" + key.toUpperCase();
+            }
+
+            switch (key) {
+                case "KeyE":
+                    //test emissive map
+                    bUseEmissiveMap = !bUseEmissiveMap;
+                    let obj = app.queryForObject("model_oilTank_TK-W")[0];
+                    obj.traverse((child) => {
+                        if (child.isMesh) {
+                            // child.material.transparent = false;
+
+                            if (bUseEmissiveMap) {
+                                child.material.emissive.setHex(0xff0000);
+                                child.material.emissiveIntensity = 0.2;
+                                child.material.emissiveMap = APP3D.Texture.load("./assets/glow_effect/emissivMap3.png");
+                                // APP3D.ImageUtils.loadTexture("./assets/glow_effect/emissivMap3.png");
+                            }
+                            else {
+                                child.material.emissive.setHex(0x000000);
+                                child.material.emissiveIntensity = 1;
+                                child.material.emissiveMap = null;
+                            }
+                        }
+                    });
+                    break;
+                case "KeyN":
+                    restoreNormal();
+                    break;
+                case "KeyB":
+                    turnOnUnRealBloomPass();
+                    break;
+                case "KeyP":
+                    if (bShowPointLight) {
+                        removePointLights(pointLights);
+                        bShowPointLight = false;
+                    } else {
+                        pointLights = addPointLights();
+                        bShowPointLight = true;
+                    }
+                    break;
+                case "KeyR":
+                    if (bShowRectAreaLight) {
+                        removeRectAreaLight(rectAreaLight);
+                        bShowRectAreaLight = false;
+                    } else {
+                        rectAreaLight = addRectAreaLight();
+                        bShowRectAreaLight = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

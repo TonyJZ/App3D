@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+    <script src="./models/p_testNewSeg.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is a tutorial to add floating animation on pipelines.<br>
+        Select pipes will show selection effects and label.
+    </p>
+    <script>
+
+        /* Description of the site */
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }
+                    ]
+                }
+            ]
+        };
+
+        //  On load function called once the site loading is complete 
+        function onLoad() {
+            //  create pipelines
+            for (var i = 0; i < PipelineParams.length; ++i) {
+                var pipe = new APP3D.Pipeline();
+                pipe.create("pipe" + (i + 1), undefined, PipelineParams[i].pipeStyle, PipelineParams[i].routeArray);
+                // add label
+                pipe.addLabel({ imgPath: "images/fleurBlue.png" });
+                app.getCurrentScene().add(pipe, true);
+                pipe.onEvent(APP3D.Events.MOUSE_LEFT, (event) => {
+                    onSelect(event);
+                });
+            }
+        }
+        var selectedObject = null;
+        function onSelect(event) {
+            if (selectedObject !== null) {
+                //app.showOutline(defaultOutlineObjects);
+                selectedObject.hideLabel();
+                app.showOutline();
+            }
+            selectedObject = event.object;
+            selectedObject.showLabel();
+            app.showOutline(selectedObject, 0xffff00);
+        };
+        /* Create an app with the site and on load function */
+        let app = new APP3D.App("parent", siteObj, onLoad);
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

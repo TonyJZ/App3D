@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="38px" height="38px" viewBox="0 0 38 38" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.4 (67378) - http://www.bohemiancoding.com/sketch -->
+    <title>icon_famenzhuangtai_p</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon_cut" transform="translate(-256.000000, -361.000000)">
+            <g id="icon-copy" transform="translate(143.000000, 360.000000)">
+                <g id="分组-4-copy-10" transform="translate(113.000000, 1.000000)">
+                    <g id="icon_famenzhuangtai_p">
+                        <g id="icon_zhibei">
+                            <circle id="椭圆形" fill="#2F80E7" cx="19" cy="19" r="19"></circle>
+                            <g id="分组-9" transform="translate(8.000000, 10.000000)">
+                                <g id="阀门" transform="translate(3.000000, 0.000000)">
+                                    <path d="M10.9993502,7.5555555 L10.9993502,4.72222219 C10.9993502,4.20062028 10.5516569,3.77777775 9.99940017,3.77777775 L8.99945016,3.77777775 L8.99945016,1.88888888 L14.9991502,1.88888888 C15.5514069,1.8888889 15.9991002,1.46604634 15.9991002,0.944444438 C15.9991002,0.422842532 15.5514069,0 14.9991501,0 L0.999850077,0 C0.4475933,2.27999509e-08 -9.99412782e-05,0.422842532 -9.99412782e-05,0.944444438 C-9.99171383e-05,1.46604634 0.4475933,1.88888888 0.999850064,1.88888888 L6.99955009,1.88888888 L6.99955009,3.77777775 L5.99960009,3.77777775 C5.44734328,3.77777777 4.99965004,4.20062028 4.99965004,4.72222219 L4.99965004,7.5555555 L10.9993502,7.5555555 Z M6.99955028,5.66666663 L8.99945029,5.66666663 L8.99945029,7.5555555 L6.99955028,7.5555555 L6.99955028,5.66666663 Z" id="形状" fill="#FFFFFF" fill-rule="nonzero"></path>
+                                    <rect id="矩形" stroke="#FFFFFF" stroke-width="2" x="1" y="8" width="14" height="6"></rect>
+                                </g>
+                                <rect id="矩形" stroke="#33E6EE" stroke-width="2" x="0" y="5" width="4" height="12" rx="2"></rect>
+                                <rect id="矩形-copy" stroke="#33E6EE" stroke-width="2" x="18" y="5" width="4" height="12" rx="2"></rect>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

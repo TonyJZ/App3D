@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        #mini-window {
+            width: 550px;
+            height: 300px;
+            left: 25em;
+            top: 15em;
+            z-index: 100;
+            position: absolute;
+            visibility: hidden;
+            background-color: "red";
+            background-image: url("assets/mini-window.png");
+        }
+
+        #mini-canvas {
+            width: 400px;
+            height: 300px;
+            position: absolute;
+        }
+
+        #side-text {
+            margin-left: 350px;
+            margin-top: 100px;
+            text-align: left;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="parent"></div>
+    <div id="progressbar"></div>
+
+
+    </div>
+    <p>
+        Multi canvas tutorial <br>
+        Double click on an object in the full screen canvas to bring up the mini canvas.<br>
+        click anywhere else in the full screen to remove the mini canvas.
+    </p>
+    <div name="mini-window" id="mini-window">
+
+        <div id="mini-canvas" name="mini-canvas"></div>
+        <p id="side-text" name="side-text"> Object status
+            <br />
+            --------------
+            <br />
+            <br />
+            Name : Building 1 <br />
+            energy usage : 4000kwh <br />
+        </p>
+    </div>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        }, {
+                            name: "building_a4",
+                            label: "Building A4",
+                            path: "models/building_a8.app2",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        var clonedObject;
+
+        function onLoad() {
+            // Get all buildings from the site
+            let buildings = app.queryForObject("building_");
+            buildings.forEach(function (building) {
+                building.onEvent(APP3D.Events.MOUSE_LEFT, function (event) {
+                    app.showOutline([building], 0xffff00);
+                });
+                building.onEvent(APP3D.Events.MOUSE_DOUBLE, function (event) {
+                    document.querySelector("#mini-window").style.visibility = "visible";
+                    app2.resume();
+                    if (clonedObject !== null) {
+                        app2.getCurrentScene().remove(clonedObject);
+                    }
+
+                    clonedObject = event.object.clone();
+                    app2.getCurrentScene().add(clonedObject);
+
+                    // add rotation
+                    let animation = new APP3D.Animation("rotate", (object, speed, delta) => {
+                        object.rotateY(delta * speed);
+                    }, [clonedObject, 0.1]);
+                    clonedObject.animations.addWithReplace(animation);
+
+                    let camPosition = clonedObject.getOptimalCameraParams(app2.getCurrentCamera(), Math.PI / 5, .8);
+                    app2.getCurrentCamera().position.copy(camPosition.position);
+                    app2.getCurrentCamera().lookAt(camPosition.lookAt.x, camPosition.lookAt.y, camPosition.lookAt.z);
+                    app2.orbitControl.target.set(camPosition.lookAt.x, camPosition.lookAt.y, camPosition.lookAt.z);
+
+                });
+
+            });
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.getCurrentScene().setSkyBoxImage("jpg", "./assets/bluesky/");
+        app.onEvent(APP3D.Events.MOUSE_LEFT, (event) => {
+            app2.stop();
+            document.querySelector("#mini-window").style.visibility = "hidden";
+        })
+
+        //create the mini canvas
+        let emptySiteObj = {
+            scenes: [{
+                name: "preview-scene",
+                objects: []
+            }]
+        }
+        let app2 = new APP3D.App("mini-canvas", emptySiteObj, (scene) => {
+            scene.setBackgroundColor(null);
+        });
+
+        app2.stop();
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This tutorial test multiple anti-aliasing methods. <br>
+        Press 'A' to change the anisotropy of texture,
+        Press 'B' to turn on/off Mipmaps of texture,
+        Press 'F' to use FXAA pass,
+        Press 'M' to use SMAA pass,
+        Press 'S' to use SSAA pass,
+        Press 'Equal'/'Minus' to increase/decrease the sampleLevel of SSAA pass,
+        Press 'U' to enable/disable unbiased of SSAA pass.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "machine",
+                            label: "machine",
+                            path: "models/gltf/model_1430_dengwenzhenghuoxian.app3",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            machine = app.queryForObject("^machine$")[0];
+
+            let animation = new APP3D.Animation("rotate", (object, speed, delta) => {
+                object.rotateY(delta * speed);
+            }, [machine, 0.1]);
+            machine.animations.addWithReplace(animation);
+
+            //find optimal camera position
+            let camPosition = machine.getOptimalCameraParams(app.getCurrentCamera(), Math.PI / 7, 1.1);
+            app.getCurrentCamera().position.copy(camPosition.position);
+            app.getCurrentCamera().lookAt(camPosition.lookAt.x, camPosition.lookAt.y - 5, camPosition.lookAt.z);
+            app.orbitControl.target.set(camPosition.lookAt.x, camPosition.lookAt.y - 5, camPosition.lookAt.z);
+
+            app.showOutline([machine]);
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        var machine = null;
+        var showStatsInfo = false;
+
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            var key = event.code || event.key;
+            if (key.length === 1) {
+                key = "Key" + key.toUpperCase();
+            }
+
+            switch (key) {
+                case "KeyA":
+                    machine.traverse((child) => {
+                        if (child.isMesh) {
+                            if (child.material.map !== null) {
+                                let texture = child.material.map;
+                                if (texture.anisotropy === 1)
+                                    texture.anisotropy = app.getCurrentRender().capabilities.getMaxAnisotropy();
+                                else
+                                    texture.anisotropy = 1;
+                                child.material.needsUpdate = true;
+                            }
+                        }
+                    });
+                    console.log(machine);
+                    break;
+                case "KeyB":
+                    machine.traverse((child) => {
+                        if (child.isMesh) {
+                            if (child.material.map !== null) {
+                                let texture = child.material.map;
+                                if (texture.generateMipmaps)
+                                    texture.generateMipmaps = false;
+                                else
+                                    texture.generateMipmaps = true;
+                                child.material.needsUpdate = true;
+                            }
+                        }
+                    });
+                    console.log(machine);
+                    break;
+                case "KeyF":
+                    app.setAntialiasingMethod(APP3D.AntialiasingMethods.FXAA);
+                    break;
+                case "KeyM":
+                    app.setAntialiasingMethod(APP3D.AntialiasingMethods.SMAA);
+                    break;
+                case "KeyS":
+                    app.setAntialiasingMethod(APP3D.AntialiasingMethods.SSAA);
+                    break;
+                case "KeyT":
+                    showStatsInfo = !showStatsInfo;
+                    app.showStatsInfo(showStatsInfo);
+                    break;
+                case "Equal":
+                    if (app.antialiasingMode === APP3D.AntialiasingMethods.SSAA) {
+                        if (app.ssaaPass.sampleLevel < 5)
+                            app.ssaaPass.sampleLevel++;
+                    }
+                    break;
+                case "Minus":
+                    if (app.antialiasingMode === APP3D.AntialiasingMethods.SSAA) {
+                        if (app.ssaaPass.sampleLevel > 0)
+                            app.ssaaPass.sampleLevel--;
+                    }
+                    break;
+                case "KeyU":
+                    app.ssaaPass.unbiased = !app.ssaaPass.unbiased;
+                    break;
+                default:
+                    break;
+            }
+        });
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

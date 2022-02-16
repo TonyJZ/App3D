@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Appropolis 3D library</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+  <link href="css/main.css" rel="stylesheet" />
+  <link id="theme" href="css/light.css" rel="stylesheet" />
+  <link id="description" href="css/description.css" rel="stylesheet" />
+
+  <script src="lib/app3d.js"></script>
+  <script src="lib/inflate.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+
+  <style>
+    #viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  </style>
+</head>
+
+<body id="parent">
+  <div id="progressbar"></div>
+  <p>
+    Keys: <br> 'P' on/off clipping 开关切割.<br> 'I' & 'O' move plane X 平移X面.<br> 'J' & 'K' move plane Y 平移Y面.<br> 'N' & 'M' move plane
+    Z 平移Z面.<br> 'Y' & 'U' rotate planes 旋转面.<br> 'Z' activate measure 开启测量.<br> 'X' clear measurements 清空测量.
+  </p>
+  <div id="container"></div>
+</body>
+
+<script type="text/javascript" id="mainCode">
+  // Description of the site
+  let siteObj = {
+    scenes: [
+      {
+        name: "anyue",
+        isPrimary: true,
+        camera: {
+            initialPosition: {
+                x: -200.0,
+                y: 500.0,
+                z: -200.0
+            },
+            initialFocalPoint: {
+                x: -30,
+                y: -231,
+                z: 93
+            },
+            homePosition: {
+                x: -200.0,
+                y: 500.0,
+                z: -200.0
+            },
+            homeFocalPoint: {
+                x: -30,
+                y: -231,
+                z: 93
+            }
+        },
+        objects: [
+          {
+            name: "heart",
+            path: "models/stl/result.stl",
+            type: "object"
+          },
+        ],
+        params: {
+          colorMap: 'rainbow',
+          colorValueMax: 1000,
+          colorValueMin: -1000,
+          datas: [{ x: -72.3024, y: -164.1232, z: -197.9722, v: -1000 }, { x: -18.5308, y: -200.5582, z: 203.9629, v: 1000 }, { x: -2.4895, y: 178.425, z: 385.5169, v: -1000 }],
+          valueMethod: "gradual", // "gradual","idw"
+        },
+      }
+    ]
+  };
+  // Create an app with the site and on load function
+  function onLoad() {
+    obj = app.queryForObject("heart")[0];  //查找模型Object存入变量
+    colormap = new APP3D.ColorMapWrapper(obj, params);  //调用Colormap类创建色谱，需要输入模型Object和参数表
+    //在面板中添加内容
+    gui.add(params, 'colorMap', ['rainbow', 'cooltowarm', 'blackbody', 'grayscale']).onChange(function () {
+      colormap.update(params);
+    });
+    gui.add(gui_p, 'dist').name('Distance:');
+    let camera = app.getCurrentCamera(); //获取当前相机
+    clipping = new APP3D.ClippingOperation(obj, scene, camera, app.renderer);  //调用ClippingOperation类创建切割平面，需要输入模型、场景、相机、渲染器
+    let parameters = {
+      type: "default",
+    }
+    clipping.generateClippingPlanes(parameters);
+    clipping.showPlaneHelpers(false);
+  }
+  var obj, colormap;
+  var params = siteObj.scenes[0].params;
+  let app = new APP3D.App("parent", siteObj, onLoad);  //创建场景
+  let gui = new dat.GUI();  //创建面板
+  let gui_p = { dist: "0" };
+  let scene = app.getCurrentScene();
+  let measurePolyline = new APP3D.Polyline();
+  scene.add(measurePolyline);
+  let mItemArr = [];
+  let bMeasured = false;
+  let clipping;
+  let bClip = false;
+  let measureConfig = {
+    pointStyle: {
+      color: 0x0000ff,
+      size: 0.5,
+    },
+    lineSegmentStyle: {
+      color: 0xff0000,
+      linewidth: 0.002,
+    }
+  }
+
+  function calculateDistance(vPt1, vPt2) {
+    return distance = Math.sqrt(Math.pow((vPt2.x - vPt1.x), 2) + Math.pow((vPt2.y - vPt1.y), 2) + Math.pow((vPt2.z - vPt1.z), 2)); 
+  }
+
+  // 设置快捷键功能
+  app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+    var key = event.code || event.key;
+    if (key.length === 1) {
+      key = "Key" + key.toUpperCase();
+    }
+    switch (key) {
+      //clipping
+      case "KeyP":  //显示切割平面
+        bClip = !bClip;
+        clipping.showPlaneHelpers(bClip);
+        break;
+      case "KeyI":  //X轴平面正向平移
+        if(bClip)
+          clipping.planeXMoveForward();
+        break;
+      case "KeyO":  //X轴平面负向平移
+        if(bClip)
+          clipping.planeXMoveBackward();
+        break;
+      case "KeyJ":  //Y轴平面正向平移
+        if(bClip)
+          clipping.planeYMoveForward();
+        break;
+      case "KeyK":  //Y轴平面负向平移
+        if(bClip)  
+          clipping.planeYMoveBackward();
+        break;
+      case "KeyN":  //Z轴平面正向平移
+        if(bClip)
+          clipping.planeZMoveForward();
+        break;
+      case "KeyM":  //Z轴平面负向平移
+        if(bClip)  
+          clipping.planeZMoveBackward();
+        break;
+      case "KeyY":  //平面顺时针旋转
+        if(bClip)  
+          clipping.planeRotateClock();
+        break;
+      case "KeyU":  //平面逆时针旋转
+        if(bClip)  
+          clipping.planeRotateCounterClock();
+        break;
+
+      // measure
+      case "KeyZ":  //开/关测量模式
+        obj.onEvent(APP3D.Events.MOUSE_LEFT, function (event) {
+          let clipPt = clipping.findCloseVisiblePoint(app, event);
+          // console.log(clipPt);
+          if (measurePolyline.points.length > 1) {
+            measurePolyline.deleteFirstPoint();
+          }
+          measurePolyline.addPoint(clipPt, measureConfig);
+          if (measurePolyline.points.length == 2) {
+            gui_p.dist = String(parseFloat(calculateDistance(measurePolyline.points[0], measurePolyline.points[1])));
+            gui.updateDisplay();
+          }
+        });
+        break;
+      case "KeyX":  //清空重置测量
+        obj.onEvent(APP3D.Events.MOUSE_LEFT, function (event) { });
+        gui_p.dist = "0";
+        gui.updateDisplay();
+        measurePolyline.clear();
+        break;
+      default:
+        break;
+    }
+  });
+
+</script>
+
+</html>

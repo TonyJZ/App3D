@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial description. <br>
+        This is the usages. <br>
+        Press "A" to start object rotation. <br>
+        Press "D" to stop object's all animation. <br>
+        Press "W" to move object to 0 position. <br>
+        Press "S" to move object up to sky.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        },
+                        {
+                            name: "tree1",
+                            label: "Tree1",
+                            path: "models/tree.app2",
+                            type: "object"
+                        },
+                        {
+                            name: "building1",
+                            label: "Building1",
+                            path: "models/building_a1.app2",
+                            type: "object"
+                        }
+
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            //app.getCurrentScene().showAxesHelper(true);
+
+            let trees = app.queryForObject("tree");
+            trees.forEach(function (tree) {
+                tree.onEvent(APP3D.Events.MOUSE_LEFT, function (event) {
+                    app.showOutline([tree], 0xffff00);
+                });
+            });
+
+            let buildings = app.queryForObject("building");
+            buildings.forEach(function (building) {
+                building.onEvent(APP3D.Events.MOUSE_LEFT, function (event) {
+                    app.showOutline([building], 0xffff00);
+                });
+            });
+        }
+
+        function objRotation(object, rotSpeed) {
+            let loop = function (object, delta) {
+                object.rotateY(rotSpeed);
+                return true;
+            };
+
+            let lookAtPoints = [];
+            let rotAnimation = new APP3D.Animation("rotate", loop, [object]);
+            object.animations.addWithReplace(rotAnimation);
+        }
+
+        function objStopRotation(object) {
+            object.animations.removeAll();
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            switch (event.keyCode) {
+                case 65: // A
+                    let trees = app.queryForObject("tree");
+                    trees.forEach(function (tree) {
+                        objRotation(tree, 0.2);
+                    });
+                    break;
+
+                case 68: // D
+                    let trees2 = app.queryForObject("tree");
+                    trees2.forEach(function (tree) {
+                        objStopRotation(tree);
+                    });
+                    break;
+
+                case 87: // W
+                    let trees3 = app.queryForObject("tree");
+                    trees3.forEach(function (tree) {
+                        tree.moveTo({ x: 0.0, y: 0.0, z: 0.0 }, 200, null)
+                    });
+                    break;
+
+                case 83: // S
+                    let trees4 = app.queryForObject("tree");
+                    trees4.forEach(function (tree) {
+                        tree.moveTo({ x: 0.0, y: 200.0, z: 0.0 }, 200, null)
+                    });
+                    break;
+
+                default:
+                    console.log("key code", event.keyCode);
+                    break;
+            }
+        });
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

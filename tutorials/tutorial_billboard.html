@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is a tutorial for using billboard class. <br>
+        Press "W" to create video billboard. <br>
+        Press "Q" to create image billboard. <br>
+        Press "A" to update image billboard information. <br>
+        Press "S" to switch image billboard transparency.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            let buildings = app.queryForObject("building_");
+            buildings.forEach(function (building) {
+                building.onEvent(APP3D.Events.MOUSE_LEFT, function (event) {
+                    app.showOutline([building], 0xffff00);
+                });
+            });
+        }
+
+        let sizeVideo = { "width": 48, "height": 20.4 };
+        let sizeImage = { "width": 40, "height": 4 };
+        let canvas = document.createElement("canvas");
+        canvas.width = 1182;
+        canvas.height = 168;
+        let context = canvas.getContext("2d");
+        context.fillStyle = 'rgba(255, 255, 255, 0)';
+        let backgroundIMG = new Image();
+        backgroundIMG.src = "assets/biankuang.png";
+        backgroundIMG.onload = function () {
+            context.drawImage(backgroundIMG, 0, 0);
+        }
+
+        let canvasVideo = document.createElement("video");
+        canvasVideo.src = "assets/video.mp4";
+        canvasVideo.load();
+        canvasVideo.loop = true;
+        //
+
+        function cloneCanvas(oldCanvas) {
+            let newCanvas = document.createElement('canvas');
+            let context = newCanvas.getContext('2d');
+            newCanvas.width = oldCanvas.width;
+            newCanvas.height = oldCanvas.height;
+            context.drawImage(oldCanvas, 0, 0);
+            return newCanvas;
+        }
+
+        function getTextCanvas(canvas, info) {
+            let canvasUpdate = cloneCanvas(canvas);
+            let width = 1182, height = 168;
+            let context = canvasUpdate.getContext("2d");
+            context.font = "50px Arial";
+            context.fillStyle = "#000000";
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.strokeText(info, width / 2, height / 2);
+            return canvasUpdate;
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            switch (event.keyCode) {
+
+                case 87: // W
+                    canvasVideo.play();
+                    let testBillboardVideo = new APP3D.Billboard("BillboardVideo1", canvasVideo, sizeVideo, 2);
+                    testBillboardVideo.position.set(0, 20, 0);
+                    app.getCurrentScene().add(testBillboardVideo);
+                    break;
+
+                case 81: // Q
+                    let testBillboardImg = new APP3D.Billboard("BillboardImage", canvas, sizeImage, 1);
+                    testBillboardImg.position.set(0, 35, 0);
+                    app.getCurrentScene().add(testBillboardImg);
+                    break;
+
+                case 65: // A
+                    let billboard = app.queryForObject("BillboardImage")[0];
+                    if (billboard != null) {
+                        let info = "Phone number：" + Math.floor(Math.random() * Math.floor(1000000));
+                        let canvasUpdate = getTextCanvas(canvas, info);
+                        billboard.updateCanvas(canvasUpdate);
+                    }
+                    break;
+
+                case 83: // S
+                    let billboard2 = app.queryForObject("BillboardImage")[0];
+                    if (billboard2 != null) {
+                        billboard2.setTransparency(!billboard2.getTransparency());
+                    }
+                    break;
+
+
+                default:
+                    // console.log("key code", event.keyCode);
+                    break;
+            }
+        });
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+export let glowingBandEffect_uniforms = {
+    object: {value: null},
+    meshName: {value: null},
+    baseTexture: { type: "t", value: null },
+    alpha: { type: "f", value: 1.0 },
+    time: { type: "f", value: 1.0 },
+    direction: { type: "f", value: 1.0 },
+    bandWidth: { type: "f", value: 0.95 },
+    redBase: { type: "f", value: 0.0 },
+    greenBase: { type: "f", value: 0.0 },
+    blueBase: { type: "f", value: 0.0 },
+    redAmp: { type: "f", value: 0.0 },
+    greenAmp: { type: "f", value: 0.8 },
+    blueAmp: { type: "f", value: 0.0 },
+    uSpeed: { type: "f", value: 0.1 },
+    vSpeed: { type: "f", value: 0.1 },
+};

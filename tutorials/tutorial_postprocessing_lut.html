@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for post-processing LUT Composer. <br>
+        Select LUT on control panel.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        }, {
+                            name: "building_a4",
+                            label: "Building A4",
+                            path: "models/building_a8.app2",
+                            type: "object"
+                        }, 
+                        {
+                            name: "oneBox",
+                            path: "models/oneBox.app2",
+                            type: "object"
+                        }, 
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.getCurrentScene().setSkyBoxImage("png", "assets/pisa/");
+        let postProcessingEffect = "lut";
+        let parameters = {
+            renderer: app.renderer,
+            scene: app.getCurrentScene(),
+            camera: app.getCurrentCamera(),
+            lutInfo: { name: 'identity', size: 2, filter: true, },
+        };
+        let composer = new APP3D.EffectComposerFactory(postProcessingEffect, parameters);
+        app.composer = composer;
+        const gui = new dat.GUI();
+
+        //gui
+        const lutTextures = [
+            { name: 'identity', size: 2, filter: true, },
+            { name: 'identity no filter', size: 2, filter: false, },
+            { name: 'custom', size: 16, filter: true, url: 'images/lut/3dlut-red-only-s16.png' },
+            { name: 'monochrome', size: 8, filter: true, url: 'images/lut/monochrome-s8.png' },
+            { name: 'sepia', size: 8, filter: true, url: 'images/lut/sepia-s8.png' },
+            { name: 'saturated', size: 8, filter: true, url: 'images/lut/saturated-s8.png' },
+            { name: 'posterize', size: 8, filter: false, url: 'images/lut/posterize-s8n.png' },
+            { name: 'inverse', size: 8, filter: true, url: 'images/lut/inverse-s8.png' },
+            { name: 'color negative', size: 8, filter: true, url: 'images/lut/color-negative-s8.png' },
+            { name: 'funky contrast', size: 8, filter: true, url: 'images/lut/funky-contrast-s8.png' },
+            { name: 'nightvision', size: 8, filter: true, url: 'images/lut/nightvision-s8.png' },
+            { name: 'thermal', size: 8, filter: true, url: 'images/lut/thermal-s8.png' },
+            { name: 'b/w', size: 8, filter: true, url: 'images/lut/black-white-s8n.png' },
+            { name: 'hue +180', size: 8, filter: true, url: 'images/lut/hue-plus-180-s8.png' },
+            { name: 'goolgey', size: 8, filter: true, url: 'images/lut/googley-s8.png' },
+            { name: 'bgy', size: 8, filter: true, url: 'images/lut/bgy-s8.png' },
+        ];
+        
+        const lutNameIndexMap = {};
+        lutTextures.forEach((info, ndx) => {
+            lutNameIndexMap[info.name] = ndx;
+        });
+
+        const lutSettings = {
+            lut: lutNameIndexMap.identity,
+        };
+        gui.add(lutSettings, 'lut', lutNameIndexMap).onChange(function () {
+            parameters.lutInfo = lutTextures[lutSettings.lut];
+            app.composer.updateParameters(parameters);
+        });
+        
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

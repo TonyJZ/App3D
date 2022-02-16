@@ -1,0 +1,68 @@
+### Developer coding guidelines:
+
+## General
+* Please make sure the main development branch (`develop`) always works
+* Only push completed or working features to `develop`
+* If partially finished codes or codes not related to the `develop` branch needs to be shared, create a separate branch
+* Follow coding guidelines in `eslintrc.js`
+* Remove all `console.log` from `develop` branch.
+* Please use English in comments and commit messages etc.
+* Remove all commented-out code, except for code blocks that might become relevent in the future, or which are left for instructional purposes
+* Run eslint and fix all issues before merging
+
+## Naming conventions
+* Class names are `ClassName`
+* Function names are `functionName`
+* Variables and constants are `variables` and `constants`. Excpet for constants in `Constant.js` file which are `CONSTANT`
+* Directory names are `directoryName`
+* File names are `fileName.js` if non class javascript file, `FileName.js` if Javascript class file, `file-name.txt` for non javascript files (except for specialized files) 
+* Branch names are `branch-name`.
+
+## git workflow
+* Pull latest `develop` before developing, 
+* Branch, give branch a meaningfull name based on the feature, bug being worked on
+* Once development is complete, fetch `develop` again and rebase on top of `develop`.
+
+## Pulling to master
+1. Checkout and pull update branch
+```
+git checkout develop
+git pull origin develop
+```
+2. Move to master branch
+```
+git checkout master 
+```
+3. Merge develop without commiting
+```
+git merge develop --no-commit
+```
+4. Update the version in src/Constant.js file
+5. Update release-notes.txt and roadmap.txt
+For the release notes follow the following format:
+
+App3D v xx.yy
+=============
+1. [Added] Feature description
+2. [Updated] Feature description
+3. [Fixed] Bug description
+4. [Removed] Feature description
+
+6. Rollup all three versions
+```
+rollup -c
+rollup -c rollupBabel.config.js 
+rollup -c rollupBabelAndUglify.config.js
+```
+7. Add the changes
+```
+git add -u
+```
+8. Add the build directory
+```
+git add build/*
+```
+9. Commit with the same commit massge as the release note
+```
+git commit 
+```

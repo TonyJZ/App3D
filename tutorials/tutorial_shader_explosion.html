@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Appropolis 3D library</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+  <link href="css/main.css" rel="stylesheet" />
+  <link id="theme" href="css/light.css" rel="stylesheet" />
+  <link id="description" href="css/description.css" rel="stylesheet" />
+
+  <script src="lib/app3d.js"></script>
+  <script src="lib/inflate.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+
+  <style>
+    #viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  </style>
+</head>
+
+<body id="parent">
+  <div id="progressbar"></div>
+  <p>
+    This tutorial is show Explosion by adding Perlin Noise in shader material.
+  </p>
+  <div id="container"></div>
+</body>
+
+<script type="text/javascript" id="mainCode">
+  // Description of the site
+  let siteObj = {
+    scenes: [
+      {
+        name: "anyue",
+        isPrimary: true,
+        camera: {
+            initialPosition: {
+                x: 179.35820988345466,
+                y: 109.4386690981335,
+                z: -167.2525343167079
+            },
+            initialFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            homePosition: {
+                x: 179.35820988345466,
+                y: 109.4386690981335,
+                z: -167.2525343167079
+              },
+            homeFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+        },
+        objects: [
+            {
+                name: "ground",
+                path: "models/grounds.app2",
+                type: "ground"
+            }, 
+            {
+                name: "building_a1",
+                label: "Building A1",
+                path: "models/building_a1.app2",
+                type: "object"
+            }
+        ]
+      }
+    ]
+  };
+
+  // Create an app with the site and on load function
+  let app = new APP3D.App("parent", siteObj, null);
+
+  // get scene
+  let scene = app.getCurrentScene();
+
+  // add explosion
+  let effectName = "ExplosionEffect";
+  let parameters_1 = { diameter: 30, textureUrl: "textures/explosion.png" };
+  let effect_1 = new APP3D.ShaderFactory(effectName, parameters_1);
+  let explosionBall_1 = effect_1.getBaseObject();
+  explosionBall_1.position.y += 20;
+  scene.add(explosionBall_1);
+
+</script>
+
+</html>

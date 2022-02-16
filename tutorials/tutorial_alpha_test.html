@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This tutorial shows the difference of models with different alphaTest values. Details view comments in this
+        tutorial code.<br>
+        The 2 bigger trees have alphaTest=0.4, the smallest tree has alphaTest=0.0.
+    </p>
+    <script>
+        // Description of the site
+        // This tutorial imported the models with different alphaTest values.
+        // The alphaTest value are setted in 3ds Max, alphaTest in 3ds Max is a Boolean value, after export model in gltf/glb by Babylon plugin: If True, alphaTest(in model file)=0.4; If False, alphaTest(in model file)=0.0.
+        // If alphaTest(in model file)=0.0, models in the scene will have transparencing issue of multiple transparent levels.
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "alpha_test",
+                            label: "alpha_test",
+                            path: "models/alpha_test/tree.app3",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            let trees = app.queryForObject("alpha_test")[0];
+        }
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+    </script>
+    <div id="container"></div>
+</body>
+
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is a Tutorial for rainy composer. <br>
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        // {
+                        //     name: "ground",
+                        //     path: "models/grounds.app2",
+                        //     type: "ground"
+                        // }, {
+                        //     name: "building_a2",
+                        //     label: "Building A2",
+                        //     path: "models/building_a2.app2",
+                        //     type: "object"
+                        // }, {
+                        //     name: "building_a4",
+                        //     label: "Building A4",
+                        //     path: "models/building_a8.app2",
+                        //     type: "object"
+                        // }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.getCurrentScene().setSkyBoxImage("jpg", "assets/Park3Med/");
+        app.orbitControl.maxPolarAngle = Math.PI / 2;
+        let postProcessingEffect = "rainy";
+        let parameters = {
+            renderer: app.renderer,
+            scene: app.getCurrentScene(),
+            camera: app.getCurrentCamera(),
+            percent: { x: 0.3, y: 0.3 }, // control the percent of rain drop show in each direction
+            hwRatio: 3.0,
+            size: 1.2,  // drop size, be around 1/5 - 1/7 of level will looks better
+            level: 4.0, // level will control the number of rain column
+        };
+        let composer = new APP3D.EffectComposerFactory(postProcessingEffect, parameters);
+        app.composer = composer;
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

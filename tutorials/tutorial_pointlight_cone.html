@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for spotlight cone. <br>
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        },
+                        {
+                            name: "building_a4",
+                            label: "Building A4",
+                            path: "models/building_a8.app2",
+                            type: "object"
+                        },
+                        {
+                            name: "tree",
+                            label: "tree",
+                            path: "models/tree.app2",
+                            type: "object"
+                        }
+
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            let trees3 = app.queryForObject("tree");
+            trees3.forEach(function (tree) {
+            tree.moveTo({ x: 0.0, y: 0.0, z: 0.0 }, 200, null)
+            });
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        let renderer = app.renderer;
+        renderer.shadowMap.enabled = true;
+        let scene = app.getCurrentScene();
+        let color = new APP3D.Color(0xff1493);
+        let power = 40;
+        let transparent = 0.3;
+        let lightPosition = {x: 0, y: 30, z: 0};
+        let angle = 0.35;
+        let pointLightCone = new APP3D.PointLightCone(scene, color, power, transparent, lightPosition, angle);
+
+        scene.sun.intensity = 0;
+        scene.ambientLight.intensity = 0.05;
+        scene.ambientLight.color.setHex(0xffffff); // 0xf59191
+
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for adding and updating the ShaderEffect Electric. <br>
+        Press "W" for updating speed, color and position. <br>
+        Press "E" for changing noise source.<br>
+        Press "X" for closing effect.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "plane_a1",
+                            label: "Plane A2",
+                            path: "models/plane.app2",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        let effect = null;
+
+        function onLoad() {
+            // Get elect all buildings from the site
+            let planes = app.queryForObject("plane_");
+            planes.forEach(function (plane) {
+                plane.position.set(0, 10, 0);
+                let meshName = "Plane001";
+                let shaderEffect = "ElectricEffect";
+                let parameters = {
+                    object: plane,
+                    meshName: meshName,
+                    noiseSeed: "images/lava.jpg",
+                    restore: false,
+                    speed: 0.2,
+                    color: { r: 0.9, g: 0.4, b: 0.5},
+                    initialPosition: { x: 0.5, y: -0.5},
+                };
+                effect = new APP3D.ShaderFactory(shaderEffect, parameters);
+            });
+        }
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            switch (event.keyCode) {
+                // Example for setup parameters
+                case 87: // W
+                    let parameters3 = {
+                        initialPosition: { x: 0.5, y: -0.8},
+                        speed: 0.1,
+                        color: { r: 0.0, g: 0.4, b: 0.9},
+                        // restore: true,
+                    };
+                    effect.updateParameters(parameters3);
+                    break;
+                
+                case 88: // X
+                    let parameters4 = {
+                        restore: true,
+                    };
+                    effect.updateParameters(parameters4);
+                    break;
+                
+                case 69: // E
+                    let parameters5 = {
+                        noiseSeed: "images/moon.jpg"
+                    };
+                    effect.updateParameters(parameters5);
+                    break;
+                
+                default:
+                    console.log("key code", event.keyCode);
+                    break;
+            }
+        });
+
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This tutorial is adding Dynamic Texture on an imported object. <br>
+        Press 'S' to update the texture. <br>
+        Press 'R' to restore the original texture. <br>
+        Note: When modeling in 3ds Max, the material assigned to the mesh for dynamic texture need to be UNIQUE.
+    </p>
+    <!-- <canvas id="canvas"></canvas> -->
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 30,
+                            y: 30,
+                            z: 30
+                        },
+                        initialFocalPoint: {
+                            x: 0,
+                            y: 0,
+                            z: 0
+                        },
+                        homePosition: {
+                            x: 30,
+                            y: 30,
+                            z: 30
+                        },
+                        homeFocalPoint: {
+                            x: 0,
+                            y: 0,
+                            z: 0
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "planeModel",
+                            path: "models/model_dynamic_texture.app2",
+                            type: "object",
+                            selectableObjectExp: [
+                                {
+                                    name: "Plane002",
+                                    label: "Plane002"
+                                }, {
+                                    name: "Plane001",
+                                    label: "Plane001"
+                                }
+                            ]
+                        },
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            plane = app.queryForObject("^Plane001$")[0];
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        var plane = null;
+        let bCorrected = false;
+        var isDynamicT = false;
+        var meshName = "Plane001";
+        var dt = null;
+        var canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 200;
+        var ctx = canvas.getContext('2d');
+        
+
+        // app.setAnimateCallback(changeCanvas, null);
+        var intervalId = setInterval(function () {
+                    if(isDynamicT) {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        let backgroundIMG = new Image();
+                        backgroundIMG.src = "textures/dt_test.png";
+                    
+                        ctx.drawImage(backgroundIMG, 0, 0, canvas.width, canvas.height);
+                        ctx.font = '20pt Arial';
+                        ctx.fillStyle = 'white';
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.fillText(new Date().getTime(), canvas.width / 2, canvas.height / 2);
+                        dt.updateTexture();
+                    }
+                // clearInterval(intervalId);
+            }, 1000);
+        
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            var key = event.code || event.key;
+            if (key.length === 1) {
+                key = "Key" + key.toUpperCase();
+            }
+            // let plane = null;
+            switch (key) {
+                case "KeyS":
+                    if (!isDynamicT) {
+                        dt = new APP3D.DynamicTexture(plane, meshName, canvas);
+                        isDynamicT = true;
+                        intervalId = setInterval(function () {
+                    // if(isDynamicT) {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        let backgroundIMG = new Image();
+                        backgroundIMG.src = "textures/dt_test.png";
+                    
+                        ctx.drawImage(backgroundIMG, 0, 0, canvas.width, canvas.height);
+                        ctx.font = '20pt Arial';
+                        ctx.fillStyle = 'white';
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.fillText(new Date().getTime(), canvas.width / 2, canvas.height / 2);
+                        dt.updateTexture();
+                    // }
+                // clearInterval(intervalId);
+            }, 1000);
+                    }
+                    // changeCanvas();
+                    break;
+                case "KeyR":
+                    if (dt != null) {
+                        if(isDynamicT)
+                            clearInterval(intervalId);
+                        dt.restoreTexture(plane, meshName);
+                        isDynamicT = false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

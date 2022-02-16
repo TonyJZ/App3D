@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+
+    <script>
+        // Description of the site
+        objConfig = {
+            name: "boundingbox",
+            path: "models/building_a1.app2",
+            //path:   "http://10.10.10.209/models/building_a1.app2",
+            // path:   "http://10.10.10.45:7999/tutorials/models/building_a1.app2",
+            type: "object"
+        };
+
+
+
+        function getBBox(obj) {
+            let box = obj.getBoundingBox();
+            document.write("This is the tutorial for getting the size of an object bounding box.</br>")
+            document.write(box.min.x + ", " + box.min.y + ", " + box.min.z);
+            document.write("</br>");
+            document.write(box.max.x + ", " + box.max.y + ", " + box.max.z);
+        };
+
+        let obj = new APP3D.BaseObject(objConfig, getBBox.bind(this));
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

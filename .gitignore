@@ -1,0 +1,9 @@
+app3d/build/*.*
+*.orig
+servers/expressServer/node_modules
+node_modules
+expressServer/node_modules
+.vscode/settings.json
+servers/expressServer/package-lock.json
+app3d.js
+app3d.min.js

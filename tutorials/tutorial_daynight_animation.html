@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for daynight light animation<br>
+        Press "S" to start animation<br>
+        Press "P" to pause and resume<br>
+        Press "Q" to turn on/off shadow.
+    </p>
+    <script>
+
+        /* Description of the site */
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        }, {
+                            name: "building_a4",
+                            label: "Building A4",
+                            path: "models/building_a8.app2",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+
+        //  On load function called once the site loading is complete 
+        function onLoad() {
+            //  Get elect all buildings from the site 
+            let buildings = app.queryForObject("building_");
+            buildings.forEach((building) => {
+                building.onEvent(APP3D.Events.MOUSE_LEFT, (event) => {
+                    app.showOutline([building], 0xffff00);
+                });
+            });
+        }
+
+        /* Create an app with the site and on load function */
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.getCurrentScene().sun.position.set(50, 50, 50);
+        app.getCurrentScene().sun.intenstiy = 2;
+        app.getCurrentScene().ambientLight.intenstiy = 2;
+            let bShowShadow = false;
+        // app.showShadow(true);
+
+        var playAnimation = false;
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            switch (event.keyCode) {
+                case 83: // S
+                    app.showShadow(true);
+                        bShowShadow = true;
+                    app.getCurrentScene().createDayNightAnimation({
+                        TIMEPERIOD: 10,   // unit second
+                        ZENITHHEIGHT: 150,   // unit meter
+                        ZENITHANGLE: 45 / 180 * Math.PI, // 0,  //0 ~ PI/2
+                        AZIMUTH: 45 / 180 * Math.PI,  // 0~2*PI
+                        INTENSITY: 1, // float
+                        COLOR: 0xFFFFFF,
+                        LOOP: true,      // true/false
+                        SHOWSUNHELPER: true
+                    });
+                    break;
+                case 80: // P
+                    if (playAnimation)
+                        app.getCurrentScene().startDayNightAnimation();
+                    else
+                        app.getCurrentScene().pauseDayNightAnimation();
+
+                    playAnimation = !playAnimation;
+                    break;
+
+                case 81: // Q
+                        if(playAnimation)
+                            app.getCurrentScene().stopDayNightAnimation();
+                        // app.getCurrentScene().showLightHelper(true);
+                        bShowShadow = !bShowShadow
+                        app.showShadow(bShowShadow);
+                    break;
+
+                default:
+                    console.log("key code", event.keyCode);
+                    break;
+            }
+        });
+
+        app.onEvent(APP3D.Events.KEY_UP, function (event) {
+        });
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

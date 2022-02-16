@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Appropolis 3D library</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+  <link href="css/main.css" rel="stylesheet" />
+  <link id="theme" href="css/light.css" rel="stylesheet" />
+  <link id="description" href="css/description.css" rel="stylesheet" />
+
+  <script src="lib/app3d.js"></script>
+  <script src="lib/inflate.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+
+  <style>
+    #viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  </style>
+</head>
+
+<body id="parent">
+  <div id="progressbar"></div>
+  <p>
+    This tutorial shows Star Nest on the object surface. </br>
+    Press 'S' to change the duration, press 'D' to restore the effect.
+  </p>
+  <div id="container"></div>
+</body>
+
+<script type="text/javascript" id="mainCode">
+  // Description of the site
+  let siteObj = {
+    scenes: [
+      {
+        name: "anyue",
+        isPrimary: true,
+        camera: {
+            initialPosition: {
+                x: -20.0,
+                y: 35.0,
+                z: -100.0
+            },
+            initialFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            homePosition: {
+                x: -20.0,
+                y: 35.0,
+                z: -100.0
+            },
+            homeFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+        },
+        objects: [
+          {
+            name: "ground",
+            path: "models/grounds.app2",
+            type: "ground"
+          },
+          {
+            name: "plane01",
+            path: "models/onePlane.app2",
+            type: "object"
+          }
+        ]
+      }
+    ]
+  };
+  // Create an app with the site and on load function
+  function onLoad() {
+    // Get elect all obj from the site
+    let obj = app.queryForObject("plane01");
+    obj[0].position.setY(30);
+    obj.forEach(function (plane) {
+      let meshName = "Plane001";
+      shaderEffect = "StarNestEffect";
+      parameters = {
+        object: plane,
+        meshName: meshName,
+        restore: false,
+        duration: 20.0, //sec
+      };
+      effect1 = new APP3D.ShaderFactory(shaderEffect, parameters);
+    });
+
+
+  }
+  var parameters = {};
+  var effect1, shaderEffect;
+  var isRestore = true;
+  let app = new APP3D.App("parent", siteObj, onLoad);
+
+  app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+      var key = event.code || event.key;
+      if (key.length === 1) {
+        key = "Key" + key.toUpperCase();
+      }
+      // let plane = null;
+      switch (key) {
+        case "KeyS":
+          let parameters2 = {
+            duration: 1.0, //sec
+          };
+          effect1.updateParameters(parameters2)
+          break;
+        case "KeyD":
+          if (isRestore === true) {
+            let parameters2 = {
+              restore: true,
+            };
+            effect1.updateParameters(parameters2);
+            isRestore = false;
+          } else if (isRestore === false) {
+            effect1 = new APP3D.ShaderFactory(shaderEffect, parameters);
+            isRestore = true;
+          }
+          break;
+        default:
+          break;
+      }
+    });
+
+</script>
+
+</html>

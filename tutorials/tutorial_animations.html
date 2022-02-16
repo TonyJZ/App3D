@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for adding customized animation. <br>
+        Press "," and "." to switch animation.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 500,
+                            y: 500,
+                            z: -200
+                        },
+                        initialFocalPoint: {
+                            x: 0,
+                            y: 0,
+                            z: 0
+                        },
+                        homePosition: {
+                            x: 500,
+                            y: 500,
+                            z: -200
+                        },
+                        homeFocalPoint: {
+                            x: 0,
+                            y: 0,
+                            z: 0
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        },
+                        // {
+                        //     name:           "Robot",
+                        //     label:          "Robot",
+                        //     path:           "models/animations/RobotExpressive/RobotExpressive.app2",
+                        //     type:           "object",
+                        //     timeScale:      2,
+                        //     // matrix: {
+                        //     //     elements: [
+                        //     //         1,
+                        //     //         0,
+                        //     //         0,
+                        //     //         0,
+                        //     //         0,
+                        //     //         1,
+                        //     //         0,
+                        //     //         0,
+                        //     //         0,
+                        //     //         0,
+                        //     //         1,
+                        //     //         0,
+                        //     //         0,
+                        //     //         1,
+                        //     //         0,
+                        //     //         1
+                        //     //     ]
+                        //     // }
+                        // },
+                        // {
+                        //     name:           "Soldier",
+                        //     label:          "Soldier",
+                        //     path:           "models/animations/Soldier.app2",
+                        //     type:           "object",
+                        //     matrix: {
+                        //         elements: [
+                        //             3,
+                        //             0,
+                        //             0,
+                        //             0,
+                        //             0,
+                        //             3,
+                        //             0,
+                        //             0,
+                        //             0,
+                        //             0,
+                        //             3,
+                        //             0,
+                        //             5,
+                        //             1,
+                        //             -5,
+                        //             1
+                        //         ]
+                        //     }
+                        // },
+                        {
+                            name: "anim",
+                            label: "anim",
+                            path: "models/animations/multi_animations.app4",
+                            type: "object",
+                            timeScale: 2,
+                            animations: [
+                                {
+                                    name: "Cone|Action",
+                                    timeScale: 1,
+                                    startPaused: true
+                                }, {
+                                    name: "Cube|Action",
+                                    timeScale: 1,
+                                    startPaused: true
+                                }, {
+                                    name: "Cone|haha01",
+                                    timeScale: 1,
+                                    startPaused: true
+                                }, {
+                                    name: "Cone|hehe02",
+                                    timeScale: 1,
+                                    startPaused: true
+                                }, {
+                                    name: "Cube|ConeAction",
+                                    timeScale: 1,
+                                    startPaused: true
+                                }, {
+                                    name: "Cone|ConeAction",
+                                    timeScale: 1,
+                                    startPaused: true
+                                }, {
+                                    name: "Cube|haha01",
+                                    timeScale: 1,
+                                    startPaused: true
+                                }, {
+                                    name: "Cube|hehe02",
+                                    timeScale: 1,
+                                    startPaused: false
+                                }
+                            ]
+                            // matrix: {
+                            //     elements: [
+                            //         100,
+                            //         0,
+                            //         0,
+                            //         0,
+                            //         0,
+                            //         100,
+                            //         0,
+                            //         0,
+                            //         0,
+                            //         0,
+                            //         100,
+                            //         0,
+                            //         0,
+                            //         0,
+                            //         0,
+                            //         1
+                            //     ]
+                            // }
+                        },
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            // robot = app.queryForObject("Robot")[0];
+            // robot.pauseAllAnimations();
+
+            // soldier = app.queryForObject("Soldier")[0];
+            // soldier.pauseAllAnimations();
+
+            selfAnim = app.queryForObject("anim")[0];
+            console.log("bounding box", selfAnim.getBoundingBox());
+            //selfAnim.pauseAllAnimations();
+            // selfAnim.mixers[1].playing = true;
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        app.getCurrentScene().setSkyBoxImage('jpg', './assets/bluesky/');
+
+        var robotStates = ['Idle', 'Walking', 'Running', 'Dance', 'Death', 'Sitting', 'Standing', 'Punch'];
+        var soldierStates = ['Idle', 'Walk', 'Run', 'TPose'];
+        var selfStates = ['Cube|haha01', 'Cube|hehe02', 'Cube|ConeAction'];
+        var iState = 0;
+
+        var robot;
+        var soldier;
+        var selfAnim;
+
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            var key = event.code || event.key;
+            if (key.length === 1) {
+                key = "Key" + key.toUpperCase();
+            }
+            let name;
+            switch (key) {
+                case "Comma":
+                    --iState;
+                    if (iState < 0)
+                        iState = 0;
+
+                    // robot.pauseAllAnimations();
+                    // name = robotStates[iState%robotStates.length];
+
+                    // // robot.mixers.forEach((mixer) => {
+                    // //     if(mixer.name === name){
+                    // //         mixer.playOnce(1);
+                    // //     }
+                    // // });
+                    // robot.playAnimation(name);
+
+                    // soldier.pauseAllAnimations();
+                    // name = soldierStates[iState%soldierStates.length];
+                    // soldier.playAnimation(name);    
+
+                    selfAnim.pauseAllAnimations();
+                    name = selfStates[iState % selfStates.length];
+                    selfAnim.playAnimation(name);
+                    break;
+                case "Period":
+                    ++iState;
+                    // robot.pauseAllAnimations();
+                    // name = robotStates[iState%robotStates.length];
+                    // // robot.mixers.forEach((mixer) => {
+                    // //     if(mixer.name === name){
+                    // //         mixer.playOnce(1);
+                    // //     }
+                    // // });
+                    // robot.playAnimation(name);
+
+                    // soldier.pauseAllAnimations();
+                    // name = soldierStates[iState%soldierStates.length];
+                    // soldier.playAnimation(name);
+
+                    selfAnim.pauseAllAnimations();
+                    name = selfStates[iState % selfStates.length];
+                    selfAnim.playAnimation(name);
+                    break;
+
+                default:
+                    break;
+            }
+        });
+
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

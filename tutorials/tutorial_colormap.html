@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Appropolis 3D library</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+  <link href="css/main.css" rel="stylesheet" />
+  <link id="theme" href="css/light.css" rel="stylesheet" />
+  <link id="description" href="css/description.css" rel="stylesheet" />
+
+  <script src="lib/app3d.js"></script>
+  <script src="lib/inflate.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+
+  <style>
+    #viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  </style>
+</head>
+
+<body id="parent">
+  <div id="progressbar"></div>
+  <p>
+    This tutorial shows colormap by insert data on plane vertices. <br>
+  </p>
+  <div id="container"></div>
+</body>
+
+<script type="text/javascript" id="mainCode">
+  // Description of the site
+  let siteObj = {
+    scenes: [
+      {
+        name: "anyue",
+        isPrimary: true,
+        camera: {
+            initialPosition: {
+                x: -20.0,
+                y: 35.0,
+                z: -100.0
+            },
+            initialFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            homePosition: {
+                x: -20.0,
+                y: 35.0,
+                z: -100.0
+            },
+            homeFocalPoint: {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+        },
+        objects: [
+          {
+            name: "ground",
+            path: "models/grounds.app2",
+            type: "ground"
+          },
+          {
+            name: "plane01",
+            path: "models/waterplane2.app2",
+            type: "object"
+          },
+          {
+            name: "plane02",
+            path: "models/waterplane2.app2",
+            type: "object"
+          },
+          {
+            name: "plane03",
+            path: "models/waterplane2.app2",
+            type: "object"
+          },
+        ],
+        params1: {
+          colorMap: 'rainbow',
+          colorValueMax: 1000,
+          colorValueMin: -1000,
+          valueMethod: "gradual",
+          opacity: 0.6,
+          transparent: true,
+        },
+        params2: {
+          colorMap: 'rainbow',
+          colorValueMax: 1000,
+          colorValueMin: -1000,
+          datas: [{ x: 0, y: 5, z: 0, v: -1000 }, { x: 30, y: 5, z: 20, v: 1000 }, { x: -20, y: 5, z: -30, v: 2000 }, { x: 20, y: 5, z: 0, v: -1200 }, { x: 0, y: 5, z: -20, v: 1000 }, { x: 10, y: 5, z: -10, v: 1000 }, { x: -10, y: 5, z: 20, v: -1500 }],
+          valueMethod: "idw",
+          opacity: 0.6,
+          transparent: true,
+        },
+        params3: {
+          colorMap: 'rainbow',
+          colorValueMax: 1000,
+          colorValueMin: -1000,
+          valueMethod: "default",
+          valueName: "pressures",
+          opacity: 0.6,
+          transparent: true,
+        },
+      }
+    ]
+  };
+  // Create an app with the site and on load function
+  function onLoad() {
+    // Get elect all obj from the site
+    let obj1 = app.queryForObject("plane01");
+    let obj2 = app.queryForObject("plane02");
+    let obj3 = app.queryForObject("plane03");
+    obj1[0].position.setY(5);
+    obj2[0].position.setY(5);
+    obj2[0].position.setX(60);
+    obj3[0].position.setY(5);
+    obj3[0].position.setX(-60);
+
+    // simulate attribute 'pressures'
+    // obj3[0].traverse((child) => {
+    //   if (child.isMesh) {
+    //     var pressures = [];
+    //     for (var i = 0, n = child.geometry.attributes.position.count; i < n; ++i) {
+    //       pressures.push(Math.random()*2000-1000);
+    //     }
+    //     child.geometry.addAttribute("pressures", new APP3D.Float32BufferAttribute(pressures, 1));
+    //   }
+    // });
+    // console.log(obj3[0]);
+    
+    colorMapObj1 = new APP3D.ColorMapWrapper(obj1[0], params1);
+    colorMapObj2 = new APP3D.ColorMapWrapper(obj2[0], params2);
+    colorMapObj3 = new APP3D.ColorMapWrapper(obj3[0], params3);
+  }
+  var params1 = siteObj.scenes[0].params1;
+  var params2 = siteObj.scenes[0].params2;
+  var params3 = siteObj.scenes[0].params3;
+  var colorMapObj1, colorMapObj2, colorMapObj3;
+  let app = new APP3D.App("parent", siteObj, onLoad);
+
+  // gui
+  const gui = new dat.GUI();
+  var f1 = gui.addFolder('gradual');
+  f1.add(params1, "colorMap", ['rainbow', 'cooltowarm', 'blackbody', 'grayscale']).onChange( function() {
+    colorMapObj1.update(params1);
+  });
+  f1.open();
+
+  var f2 = gui.addFolder('idw');
+  f2.add(params2, "colorMap", ['rainbow', 'cooltowarm', 'blackbody', 'grayscale']).onChange(function () {
+    colorMapObj2.update(params2);
+  });
+  f2.open();
+
+  var f3 = gui.addFolder('default data');
+  f3.add(params3, "colorMap", ['rainbow', 'cooltowarm', 'blackbody', 'grayscale']).onChange(function () {
+    colorMapObj3.update(params3);
+  });
+  f3.open();
+
+</script>
+
+</html>

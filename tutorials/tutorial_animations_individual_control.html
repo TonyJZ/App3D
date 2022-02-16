@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for animation in animation groups individually. <br>
+        Press "1" , "2", "3", "4" to control.
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "animations_groups",
+                            label: "animations_groups",
+                            path: "models/animations/animations_groups.app2",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // individual control
+            // Grounps name: "ac01", "ac02", "ac03", "ac45"
+            let groups = app.queryForObject("animations_groups")[0];
+
+            var playAnimation1 = true;
+            var playAnimation2 = true;
+            var playAnimation3 = true;
+            var playAnimation4 = true;
+
+            app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+                switch (event.code) {
+                    case 'Digit1':
+                        playAnimation1 = !playAnimation1;
+                        if (!playAnimation1) {
+                            groups.pauseAnimation("ac01"); //暂停动画ac01 (pause animation ac01)
+                        } else {
+                            groups.playAnimation("ac01"); //播放动画ac01 (play animation ac01)
+                        }
+                        break;
+                    case 'Digit2':
+                        playAnimation2 = !playAnimation2;
+                        if (!playAnimation2) {
+                            groups.pauseAnimation("ac02"); //暂停动画ac02 (pause animation ac02)
+                        } else {
+                            groups.playAnimation("ac02"); //播放动画ac02 (play animation ac02)
+                        }
+                        break;
+                    case 'Digit3':
+                        playAnimation3 = !playAnimation3;
+                        if (!playAnimation3) {
+                            groups.pauseAnimation("ac03"); //暂停动画ac03 (pause animation ac03)
+                        } else {
+                            groups.playAnimation("ac03"); //播放动画ac03 (play animation ac03)
+                        }
+                        break;
+                    case 'Digit4':
+                        playAnimation4 = !playAnimation4;
+                        if (!playAnimation4) {
+                            groups.pauseAnimation("ac45"); //暂停动画ac45 (pause animation ac45)
+                        } else {
+                            groups.playAnimation("ac45"); //播放动画ac45 (play animation ac45)
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

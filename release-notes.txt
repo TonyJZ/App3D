@@ -1,0 +1,47 @@
+App3D v0.94
+===========
+[Added] ClippingOperation class for 3D model Clipping
+[Added] ColorMapWrapper class to attach a color map texture to certain object
+[Added] EffectComposerFactory class to generate effect composers
+[Added] Polyline class to add polyline to the 3D scene
+[Added] PointLightCone class temporarily for god ray effect (may replaced by volumetric lighting algorithm later)
+[Added] ParticleFogGPU, ParticleFountainCPU, ParticleFountainGPU, ParticleWeatherCPU, ParticleWeatherGPU
+[Added] AutoExposureComposer, BlankComposer, BloomComposer, ChromaticAberrationComposer, FinalComposer, GrainComposer,
+LensDistortionComposer, LutComposer, MotionBlurComposer, MuxComposer, ToneComposer, VignetteComposer
+[Added] tutorials: tutorial_colormap, tutorial_fog, tutorial_medical_model, tutorial_model_customized_clipping, 
+tutorial_orbit_control_setup, tutorial_particle_fountain, tutorial_particle_weather, tutorial_pointlight_cone, 
+tutorial_postprocessing_chromatic_aberration, tutorial_postprocessing_grain, tutorial_postprocessing_lens_distortion, 
+tutorial_postprocessing_lut, tutorial_postprocessing_motion, tutorial_postprocessing_tone, 
+tutorial_postprocessing_vignette, tutorial_shader_animated_PNG, tutorial_shader_bloom, 
+tutorial_shader_fire, tutorial_shader_heatmap, tutorial_transform_controls
+[Fixed] tutorial_dynamic_texture, tutorial_multi_canvas
+
+App3D v0.93
+===========
+[Fixed] ObjectLabel bug in updatePosition()
+[Added] getSkySphere function in BaseScene
+[Added] RadarEffect : Shader effect for Radar
+[Added] StarNestEffect : Shader effect for star nest
+[Added] FlowingLineEffect: Shader effect for flowing line
+[Added] ElectricEffect: Shader effect for electric arc
+[Added] tutorials: tutorial_shader_radar, tutorial_shader_stars, tutorial_skybox, tutorial_shader_flowingline_pipe, tutorial_shader_electric.
+
+App3D v0.92
+===========
+[Added] ShaderFactory and ShaderEffect : interface for creating shader effects
+[Added] ExplosionEffect : Shader effect for explosion
+[Added] GlowingBandEffect : Shader effect for dynamically moving band
+[Added] RippleEffect: Shader effect for rippling mesh
+[Fixed] Model path bug in tutorial
+
+App3D v0.91
+===========
+[Added] DynamicTexture class to replace texture of a mesh
+[Added] Billboard class
+[Addded] FlyInPath function to Camera.js
+[Updated] Cleaned up existing tutorials
+[Updated] ObjectIcon
+[Updated] All Flying function in Camera.js
+[Fixed] Antialiasing passes with outline showing
+[Fixed] Light helper
+[Removed] EditorIcon

@@ -1,0 +1,15 @@
+App3D v0.94
+===========
+1. Add rotation ring shader
+2. Add fire shader
+3. Add heatmap effect
+4. Add water ripple shader
+
+
+App3D v0.95
+===========
+1. Ambient Occlusion: ssao
+2. Depth of Field: dof / dof2
+3. Add ray marching
+4. Add volumetric lighting (replace PointLightCone)
+5. Add particle engine

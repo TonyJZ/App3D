@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>This is a tutorial to add a motion trail to the car use Particle Effect.</p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "car",
+                            description: "Car",
+                            type: "object",
+                            startPaused: false,
+                            timeScale: 1 / 10,
+                            path: "models/car.app2",
+                            hasAnimationPath: true
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+            let buildings = app.queryForObject("building_");
+            buildings.forEach((building) => {
+                building.onEvent(APP3D.Events.MOUSE_LEFT, (event) => {
+                    app.showOutline([building], 0xffff00);
+                });
+            });
+
+            // Add motion trails to the car:
+            let particleNoisePath = "particleSprites/perlin-512.png";
+            let spriteTexturePath = "particleSprites/particle2.png";
+            let carFX = new APP3D.ParticleEffect(app.scene, particleNoisePath, spriteTexturePath);
+            let car = app.queryForObject("car")[0];
+            car.attachParticleEffect(carFX);
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

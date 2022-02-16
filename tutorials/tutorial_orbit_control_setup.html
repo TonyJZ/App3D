@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Appropolis 3D library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="css/main.css" rel="stylesheet" />
+    <link id="theme" href="css/light.css" rel="stylesheet" />
+    <link id="description" href="css/description.css" rel="stylesheet" />
+
+    <script src="lib/app3d.js"></script>
+    <script src="lib/inflate.min.js"></script>
+
+    <style>
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body id="parent">
+    <div id="progressbar"></div>
+    <p>
+        This is the tutorial for setup orbit control limit. <br>
+        Press "Q" to setup camera lower limit and "W" to restore. <br>
+        Press "E" to setup camera upper limit and "R" to restore. <br>
+        Press "Z" to switch mouse buttons(Left and Right) and "X" to restore. <br>
+        Press "A" to lock/unlock pan. Press "S" to lock/unloack rotate. Press "D" to lock/unlock zoom.<br>
+    </p>
+    <script>
+        // Description of the site
+        let siteObj = {
+            scenes: [
+                {
+                    name: "anyue",
+                    isPrimary: true,
+                    camera: {
+                        initialPosition: {
+                            x: 200,
+                            y: 180,
+                            z: -50
+                        },
+                        initialFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        },
+                        homePosition: {
+                            x: 167.0,
+                            y: 206.0,
+                            z: -148.0
+                        },
+                        homeFocalPoint: {
+                            x: 20,
+                            y: 0,
+                            z: -15
+                        }
+                    },
+                    objects: [
+                        {
+                            name: "ground",
+                            path: "models/grounds.app2",
+                            type: "ground"
+                        }, {
+                            name: "building_a2",
+                            label: "Building A2",
+                            path: "models/building_a2.app2",
+                            type: "object"
+                        }, {
+                            name: "building_a4",
+                            label: "Building A4",
+                            path: "models/building_a8.app2",
+                            type: "object"
+                        }
+                    ]
+                }
+            ]
+        };
+        // On load function called once the site loading is complete
+        function onLoad() {
+            // Get elect all buildings from the site
+        }
+
+        // Create an app with the site and on load function
+        let app = new APP3D.App("parent", siteObj, onLoad);
+        // console.log(app.orbitControl);
+        app.onEvent(APP3D.Events.KEY_DOWN, function (event) {
+            switch (event.keyCode) {
+
+                case 81: // Q
+                    app.orbitControl.maxPolarAngle = Math.PI / 2;
+                    break;
+
+                case 87: // W
+                    app.orbitControl.maxPolarAngle = Math.PI;
+                    break;
+
+                case 69: // E
+                    app.orbitControl.minPolarAngle = Math.PI / 4;
+                    break;
+            
+                case 82: // R
+                    app.orbitControl.minPolarAngle = 0;
+                    break;
+
+                case 90: // Z
+                    app.orbitControl.mouseButtons = {LEFT: 0, MIDDLE: 1, RIGHT: 2};
+                    break;
+
+                case 88: // X
+                    app.orbitControl.mouseButtons = {LEFT: 2, MIDDLE: 1, RIGHT: 0};
+                    break;
+                
+                case 65: //A
+                    app.orbitControl.enablePan = !app.orbitControl.enablePan;
+                    break;
+                
+                case 83: //S
+                    app.orbitControl.enableRotate = !app.orbitControl.enableRotate;
+                    break;
+
+                case 68: //D
+                    app.orbitControl.enableZoom = !app.orbitControl.enableZoom;
+                    break;
+
+                default:
+                    console.log("key code", event.keyCode);
+                    break;
+            }
+        });
+    </script>
+
+    <div id="container"></div>
+
+</body>
+
+</html>

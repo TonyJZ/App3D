@@ -1,0 +1,10 @@
+/tutorials/models/**
+/assets/**
+/build/**
+/tutorials/css/**
+/expressServer/node_modules/**
+/servers/expressServer/node_modules/**
+/thirdParty/**
+/thirdParty/**
+/tutorials/models/**
+/.git/**
